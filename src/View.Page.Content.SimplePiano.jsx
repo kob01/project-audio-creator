@@ -4,7 +4,8 @@ import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioBuffer, includesArray } from './utils.common'
+import { includesArray } from './utils.common'
+import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 import audio from '../audio/index'
 
@@ -26,7 +27,7 @@ function ConsoleButton(props) {
 
     playTimeRef.current = setTimeout(() => setPlayTime(false), 500)
 
-    Imitation.setState(pre => { pre.playCount = pre.playCount + 1; return pre })
+    Imitation.setState(pre => { pre.times = pre.times + 1; return pre })
   }
 
   const ifPlay = (codePress) => {
@@ -103,26 +104,18 @@ function App() {
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }, [])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, overflow: 'hidden', transition: '0.5s all' }} >
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }}>
 
-    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <div style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 1500, height: 1000 }}>
-          <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'space-around', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div>
-              {
-                ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
-                  return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                    {
-                      audioSource.filter(i_ => i_.name.includes(i)).map((i, index) => <ConsoleButton key={index} source={i} />)
-                    }
-                  </div>
-                })
-              }
-            </div>
+    <div style={{ width: 1500, height: 1000, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+      {
+        ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
+          return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            {
+              audioSource.filter(i_ => i_.name.includes(i)).map((i, index) => <ConsoleButton key={index} source={i} />)
+            }
           </div>
-        </div>
-      </div>
+        })
+      }
     </div>
 
   </Animation>

@@ -7,7 +7,9 @@ ImitationINS.state = {
 
   message: '',
 
-  playCount: 0
+  times: 0,
+
+  setting: { volume: 1 }
 }
 
 export default ImitationINS
