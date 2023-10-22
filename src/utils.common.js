@@ -34,7 +34,7 @@ const loadAudioBuffer = async (source) => {
       })
 
       const audioBuffer = await new Promise(r => {
-        const audioContext = new AudioContext();
+        const audioContext = new AudioContext()
         audioContext.decodeAudioData(arrayBuffer, (audioBuffer) => r(audioBuffer))
       })
 
