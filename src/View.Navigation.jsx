@@ -18,38 +18,10 @@ import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-function SettingDialog(props) {
-  const [value, setValue] = React.useState(Imitation.state.setting)
-
-  return <Dialog open={true} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => props.onClose()}>
-    <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
-    <DialogContent dividers>
-      <Grid container spacing={1}>
-
-        <Grid item xs={12}>
-          Volume {value.volume}
-        </Grid>
-        <Grid item xs={12}>
-          <Slider value={value.volume} onChange={(e, v) => { setValue({ ...value, volume: v }) }} min={0} max={2} step={0.1} />
-        </Grid>
-
-      </Grid>
-    </DialogContent>
-    <DialogActions>
-      <Button variant='contained' onClick={() => { Imitation.assignState({ setting: value }); props.onClose(); }}>Save</Button>
-    </DialogActions>
-  </Dialog>
-}
-
 function Action() {
-  const [settingDialog, setSettingDialog] = React.useState()
-
   return <>
-    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => setSettingDialog(true)}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
-
-    {
-      settingDialog ? <SettingDialog onClose={() => setSettingDialog()} /> : null
-    }
+    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogCurrentAudioSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Current Audio Setting</Button>
+    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
   </>
 }
 

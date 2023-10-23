@@ -7,8 +7,6 @@ import Imitation from './utils.imitation'
 import { includesArray } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
-import audio from '../audio/index'
-
 function ConsoleButton(props) {
   const { name, codeInclued, codeMain, codeExclude } = props.source
 
@@ -92,12 +90,16 @@ function ConsoleButton(props) {
 }
 
 function App() {
-  const [audioSource, setAudioSource] = React.useState(audio.SimplePiano)
+  const audioRef = React.useRef(Imitation.state.audio.filter(i => i._id === 'SimplePiano'))
+
+  const [audioSource, setAudioSource] = React.useState(audioRef.current)
 
   React.useEffect(async () => {
+    Imitation.state.currentAudio = 'SimplePiano'
+
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const source = await loadAudioBuffer(audio.SimplePiano)
+    const source = await loadAudioBuffer(audioRef.current)
 
     setAudioSource(source)
 
