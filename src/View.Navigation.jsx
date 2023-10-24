@@ -3,12 +3,6 @@ import { useHistory, useLocation } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import Grid from '@mui/material/Grid'
-import Slider from '@mui/material/Slider'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import MusicNoteIcon from '@mui/icons-material/MusicNote'
@@ -20,7 +14,7 @@ import Imitation from './utils.imitation'
 
 function Action() {
   return <>
-    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogCurrentAudioSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Current Audio Setting</Button>
+    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogAudioMultipleSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Audio Setting</Button>
     <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
   </>
 }

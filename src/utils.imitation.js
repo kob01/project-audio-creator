@@ -13,13 +13,19 @@ ImitationINS.state = {
 
   audio: audio,
 
+  audioSetting: [],
+
   setting: { volume: 1 },
 
   dialogGlobalSetting: false,
 
-  dialogCurrentAudioSetting: false,
+  dialogAudioMultipleSetting: false,
 
-  currentAudio: null
+  audioMultipleSetting: '',
+
+  dialogAudioSingleSetting: false,
+
+  audioSingleSetting: '',
 }
 
 export default ImitationINS

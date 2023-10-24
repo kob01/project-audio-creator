@@ -8,7 +8,7 @@ import { includesArray } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { name, codeInclued, codeMain, codeExclude } = props.source
+  const { id, name, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
@@ -34,6 +34,22 @@ function ConsoleButton(props) {
     if (!codeInclued.some(i => includesArray(i, codePress))) return
 
     play()
+  }
+
+  const onMouseDown = (e) => {
+    if (e.button !== 0) return
+
+    play()
+  }
+
+  const onTouchStart = (e) => {
+    play()
+  }
+
+  const onContextMenu = (e) => {
+    e.preventDefault()
+
+    Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre })
   }
 
   const style = React.useMemo(() => {
@@ -65,28 +81,29 @@ function ConsoleButton(props) {
   }, [playTime, codePress])
 
   React.useEffect(() => {
-    const event = (e) => {
+    const keydown = (e) => {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
       setCodePress(result)
 
       ifPlay(result)
     }
 
-    const event_ = (e) => {
+    const keyup = (e) => {
       const result = codePress.filter(i => !i.includes(e.code))
       setCodePress(result)
     }
 
-    window.addEventListener('keydown', event)
-    window.addEventListener('keyup', event_)
+
+    window.addEventListener('keydown', keydown)
+    window.addEventListener('keyup', keyup)
 
     return () => {
-      window.removeEventListener('keydown', event)
-      window.removeEventListener('keyup', event_)
+      window.removeEventListener('keydown', keydown)
+      window.removeEventListener('keyup', keyup)
     }
   }, [codePress])
 
-  return <div style={style} onMouseDown={play} onTouchStart={play}>{name}</div>
+  return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }
 
 function App() {
@@ -95,16 +112,22 @@ function App() {
   const [audioSource, setAudioSource] = React.useState(audioRef.current)
 
   React.useEffect(async () => {
-    Imitation.state.currentAudio = 'BassoonStacF1'
+    Imitation.state.audioMultipleSetting = 'BassoonStacF1'
 
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
+
+    audioRef.current.forEach(i => {
+      const find = Imitation.state.audioSetting.find(i_ => i.id === i_.id)
+
+      if (find) Object.assign(i, find)
+    })
 
     const source = await loadAudioBuffer(audioRef.current)
 
     setAudioSource(source)
 
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
-  }, [])
+  }, [Imitation.state.audioSetting])
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }}>
 

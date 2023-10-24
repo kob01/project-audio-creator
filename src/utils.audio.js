@@ -3,9 +3,9 @@ import Imitation from './utils.imitation'
 const loadAudioBuffer = async (source) => {
   const source_ = JSON.parse(JSON.stringify(source))
 
-  const promise = source_.map(i => {
+  const parse = async (source) => {
     return new Promise(async r => {
-      const blob = await fetch(i.src).then(res => res.blob())
+      const blob = await fetch(source.src).then(res => res.blob())
 
       const dataUrl = await new Promise(r => {
         const reader = new FileReader()
@@ -26,15 +26,23 @@ const loadAudioBuffer = async (source) => {
         audioContext.close()
       })
 
-      i.dataUrl = dataUrl
+      source.dataUrl = dataUrl
 
-      i.audioBuffer = audioBuffer
+      source.audioBuffer = audioBuffer
 
       r()
     })
-  })
+  }
 
-  await Promise.all(promise)
+  if (Array.isArray(source_) === true) {
+    const promise = source_.map(i => parse(i))
+
+    await Promise.all(promise)
+  }
+
+  if (Array.isArray(source_) === false) {
+    await parse(source_)
+  }
 
   return source_
 }
