@@ -8,10 +8,12 @@ import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 
+import SaveIcon from '@mui/icons-material/Save'
+
 import Imitation from './utils.imitation'
 
 function App() {
-  const [value, setValue] = React.useState(Imitation.state.setting)
+  const [value, setValue] = React.useState(Imitation.state.globalSetting)
 
   const onClose = () => Imitation.assignState({ dialogGlobalSetting: false })
 
@@ -27,10 +29,17 @@ function App() {
           <Slider value={value.volume} onChange={(e, v) => { setValue({ ...value, volume: v }) }} min={0} max={2} step={0.1} />
         </Grid>
 
+        <Grid item xs={12}>
+          Scale {value.scale}
+        </Grid>
+        <Grid item xs={12}>
+          <Slider value={value.scale} onChange={(e, v) => { setValue({ ...value, scale: v }) }} min={0} max={2} step={0.1} />
+        </Grid>
+
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { Imitation.assignState({ setting: value }); onClose(); }}>Save</Button>
+      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value }); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }

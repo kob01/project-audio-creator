@@ -8,8 +8,18 @@ import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 import Paper from '@mui/material/Paper'
+import IconButton from '@mui/material/IconButton'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import SaveIcon from '@mui/icons-material/Save'
 
 import Imitation from './utils.imitation'
+
+import { requestIdleCallbackProcess } from './utils.common'
+import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function App() {
   const [value, setValue] = React.useState([])
@@ -18,13 +28,27 @@ function App() {
 
   const onSave = () => {
     value.forEach(i => {
-      const find = Imitation.state.audioSetting.find(i_ => i.id === i_.id)
+      const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
 
-      if (find) Object.assign(find, i)
-      if (!find) Imitation.state.audioSetting.push(i)
+      if (audioSetting) Object.assign(audioSetting, i)
+      if (!audioSetting) Imitation.state.audioSetting.push(i)
+    })
+
+    Imitation.state.audioSetting.forEach(i => {
+      const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
+
+      if (JSON.stringify(i) === JSON.stringify(audio)) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i_ => i_.id !== i.id)
     })
 
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
+  }
+
+  const play = async (e, source) => {
+    e.stopPropagation()
+
+    const audioBuffer = await loadAudioBuffer(source)
+
+    playAudioBuffer(audioBuffer)
   }
 
   React.useEffect(() => {
@@ -33,9 +57,9 @@ function App() {
       const value = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === Imitation.state.audioMultipleSetting)))
 
       value.forEach(i => {
-        const find = Imitation.state.audioSetting.find(i_ => i.id === i_.id)
+        const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
 
-        if (find) Object.assign(i, find)
+        if (audioSetting) Object.assign(i, audioSetting)
       })
 
       setValue(value)
@@ -43,7 +67,7 @@ function App() {
 
   }, [Imitation.state.dialogAudioMultipleSetting, Imitation.state.audioMultipleSetting])
 
-  return <Dialog open={Imitation.state.dialogAudioMultipleSetting} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 1080 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogAudioMultipleSetting} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers>
       <Grid container spacing={1}>
@@ -51,13 +75,22 @@ function App() {
         {
           value.map((i, index) => {
             return <Grid key={index} item xs={12}>
-              <Paper style={{ display: 'flex', alignItems: 'center', padding: 8 }}>
-                <Button style={{ marginRight: 8 }}>{i.name}</Button>
-                <div style={{ width: 300 }}>
-                  <div style={{ marginTop: 16 }}>Volume {i.volume}</div>
-                  <Slider value={i.volume} onChange={(e, v) => { i.volume = v; setValue([...value]) }} min={0} max={2} step={0.1} />
-                </div>
-              </Paper>
+              <Accordion>
+                <AccordionSummary>{i.name}</AccordionSummary>
+                <AccordionDetails>
+                  <Grid container spacing={1}>
+                    <Grid item xs={12}>
+                      Volume {i.volume}
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Slider value={i.volume} onChange={(e, v) => { i.volume = v; setValue([...value]) }} min={0} max={2} step={0.1} />
+                    </Grid>
+                    <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
+                      <IconButton color='primary' onClick={(e) => play(e, i)}><PlayArrowIcon /></IconButton>
+                    </Grid>
+                  </Grid>
+                </AccordionDetails>
+              </Accordion>
             </Grid>
           })
         }
@@ -65,7 +98,7 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { onSave(); onClose(); }}>Save</Button>
+      <Button variant='contained' onClick={() => { onSave(); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog >
 }

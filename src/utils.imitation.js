@@ -1,4 +1,4 @@
-import audio from '../audio/index'
+import audio from '../src-audio/index'
 
 import Imitation from 'imitation-imm/src/index'
 
@@ -15,7 +15,7 @@ ImitationINS.state = {
 
   audioSetting: [],
 
-  setting: { volume: 1 },
+  globalSetting: { volume: 1, scale: 1 },
 
   dialogGlobalSetting: false,
 

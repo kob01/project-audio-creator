@@ -1,8 +1,6 @@
 import Imitation from './utils.imitation'
 
 const loadAudioBuffer = async (source) => {
-  const source_ = JSON.parse(JSON.stringify(source))
-
   const parse = async (source) => {
     return new Promise(async r => {
       const blob = await fetch(source.src).then(res => res.blob())
@@ -34,17 +32,17 @@ const loadAudioBuffer = async (source) => {
     })
   }
 
-  if (Array.isArray(source_) === true) {
-    const promise = source_.map(i => parse(i))
+  if (Array.isArray(source) === true) {
+    const promise = source.map(i => parse(i))
 
     await Promise.all(promise)
   }
 
-  if (Array.isArray(source_) === false) {
-    await parse(source_)
+  if (Array.isArray(source) === false) {
+    await parse(source)
   }
 
-  return source_
+  return source
 }
 
 const playAudioBuffer = async (source) => {
@@ -53,12 +51,13 @@ const playAudioBuffer = async (source) => {
   const gain = audioContext.createGain()
   const bufferSource = audioContext.createBufferSource()
 
-  gain.gain.value = source.volume * Imitation.state.setting.volume
+  gain.gain.value = source.volume * Imitation.state.globalSetting.volume
 
   bufferSource.buffer = source.audioBuffer
   bufferSource.loop = false
   bufferSource.connect(gain).connect(audioContext.destination)
-  bufferSource.start(0)
+
+  bufferSource.start(source.when, source.offset, source.duration)
 
   bufferSource.addEventListener('ended', () => audioContext.close())
 }

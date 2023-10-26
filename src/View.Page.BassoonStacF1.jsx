@@ -1,10 +1,12 @@
 import React from 'react'
 
+import Slider from '@mui/material/Slider'
+
 import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-import { includesArray } from './utils.common'
+import { includesArray, requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
@@ -38,6 +40,7 @@ function ConsoleButton(props) {
 
   const onMouseDown = (e) => {
     if (e.button !== 0) return
+    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
 
     play()
   }
@@ -81,6 +84,8 @@ function ConsoleButton(props) {
   }, [playTime, codePress])
 
   React.useEffect(() => {
+    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
+
     const keydown = (e) => {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
       setCodePress(result)
@@ -101,37 +106,51 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [codePress])
+  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.audioMultipleSetting, Imitation.state.audioSingleSetting])
 
   return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }
 
 function App() {
-  const audioRef = React.useRef(Imitation.state.audio.filter(i => i._id === 'BassoonStacF1'))
+  const [scale, setScale] = React.useState(1)
 
-  const [audioSource, setAudioSource] = React.useState(audioRef.current)
+  const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'BassoonStacF1'))
 
   React.useEffect(async () => {
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'BassoonStacF1')))
+
     Imitation.state.audioMultipleSetting = 'BassoonStacF1'
 
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    audioRef.current.forEach(i => {
-      const find = Imitation.state.audioSetting.find(i_ => i.id === i_.id)
+    const process = {
+      index: 0,
 
-      if (find) Object.assign(i, find)
-    })
+      done: false,
 
-    const source = await loadAudioBuffer(audioRef.current)
+      next: () => {
+        const current = audio[process.index]
+
+        if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
+
+        if (current === undefined) process.done = true
+
+        process.index = process.index + 1
+      }
+    }
+
+    await requestIdleCallbackProcess(process)
+
+    const source = await loadAudioBuffer(audio)
 
     setAudioSource(source)
 
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }, [Imitation.state.audioSetting])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }}>
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }}>
 
-    <div style={{ width: 1500, height: 1000, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+    <div style={{ width: 1500, height: 1000, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }}>
       {
         ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
           return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -142,6 +161,8 @@ function App() {
         })
       }
     </div>
+
+    <Slider style={{ position: 'absolute', bottom: 16, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
   </Animation>
 }
