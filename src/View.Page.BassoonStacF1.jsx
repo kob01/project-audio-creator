@@ -40,7 +40,6 @@ function ConsoleButton(props) {
 
   const onMouseDown = (e) => {
     if (e.button !== 0) return
-    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
 
     play()
   }
@@ -84,7 +83,7 @@ function ConsoleButton(props) {
   }, [playTime, codePress])
 
   React.useEffect(() => {
-    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
+    if (Imitation.state.dialogGlobalSetting !== false || Imitation.state.dialogAudioMultipleSetting !== false || Imitation.state.dialogAudioSingleSetting !== false) return
 
     const keydown = (e) => {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
@@ -106,7 +105,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.audioMultipleSetting, Imitation.state.audioSingleSetting])
+  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
 
   return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }

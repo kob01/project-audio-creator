@@ -10,7 +10,7 @@ import { includesArray, requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { id, name, codeInclued, codeMain, codeExclude } = props.source
+  const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
@@ -39,13 +39,15 @@ function ConsoleButton(props) {
   }
 
   const onMouseDown = (e) => {
+    if (use === false) return
     if (e.button !== 0) return
-    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
 
     play()
   }
 
   const onTouchStart = (e) => {
+    if (use === false) return
+
     play()
   }
 
@@ -75,16 +77,18 @@ function ConsoleButton(props) {
       fontSize: 12,
       boxShadow: '0 4px 8px gray',
       transform: active ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
+      opacity: use ? 1 : 0.35
     }
 
     if (name.includes('M') === true) Object.assign(r, { background: active ? 'white' : 'black', color: active ? 'black' : 'white' })
     if (name.includes('M') === false) Object.assign(r, { background: active ? 'black' : 'white', color: active ? 'white' : 'black' })
 
     return r
-  }, [playTime, codePress])
+  }, [use, playTime])
 
   React.useEffect(() => {
-    if (Imitation.state.dialogGlobalSetting !== undefined || Imitation.state.audioMultipleSetting !== undefined || Imitation.state.audioSingleSetting !== undefined) return
+    if (use === false) return
+    if (Imitation.state.dialogGlobalSetting !== false || Imitation.state.dialogAudioMultipleSetting !== false || Imitation.state.dialogAudioSingleSetting !== false) return
 
     const keydown = (e) => {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
@@ -106,7 +110,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.audioMultipleSetting, Imitation.state.audioSingleSetting])
+  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
 
   return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }

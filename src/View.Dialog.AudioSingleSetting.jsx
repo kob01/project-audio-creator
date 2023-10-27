@@ -8,6 +8,7 @@ import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
+import Switch from '@mui/material/Switch'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import RestoreIcon from '@mui/icons-material/Restore'
@@ -33,25 +34,25 @@ function App() {
 
     if (!audioSetting) Imitation.state.audioSetting.push(source)
 
-    if (['name', 'volume', 'when', 'offset', 'duration'].every(i => source[i] === audio[i])) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i => i.id !== source.id)
+    if (['use', 'name', 'volume', 'when', 'offset', 'duration'].every(i => source[i] === audio[i])) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i => i.id !== source.id)
 
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
   }
 
-  const play = async () => {
+  const play = async (source) => {
     const audioBuffer = await loadAudioBuffer(source)
 
     playAudioBuffer(audioBuffer)
   }
 
-  const reset = async () => {
+  const reset = async (source) => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.audioSingleSetting)))
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === source.id)))
 
-    const source = await loadAudioBuffer(audio)
+    const source_ = await loadAudioBuffer(audio)
 
-    setSource(source)
+    setSource(source_)
 
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }
@@ -123,9 +124,14 @@ function App() {
           <Slider value={source.duration === undefined ? 0 : source.duration} onChange={(e, v) => { setSource({ ...source, duration: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
         </Grid>
 
+        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>Use</div>
+          <Switch checked={source.use} onChange={(e) => { setSource({ ...source, use: e.target.checked }) }} />
+        </Grid>
+
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => play()}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
-          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => reset()}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
+          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => play(source)}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
+          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => reset(source)}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
         </Grid>
 
       </Grid>
