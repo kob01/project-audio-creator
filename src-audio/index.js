@@ -8,15 +8,14 @@ BassoonStacF1.forEach(i => i._id = 'BassoonStacF1')
 const defaultSetting = {
   use: true,
   volume: 1,
-  when: undefined,
-  offset: undefined,
-  duration: undefined
+  when: 0,
+  offset: 0
 }
 
 const source = [...SimplePiano, ...BassoonStacF1]
 
 source.forEach(i => i.id = i._id + '.' + i.name)
 
-source.forEach(i => Object.assign(i, defaultSetting))
+const result = source.map(i => Object.assign({}, defaultSetting, i))
 
-export default source
+export default result

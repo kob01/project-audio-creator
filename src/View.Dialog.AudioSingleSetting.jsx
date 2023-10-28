@@ -9,10 +9,14 @@ import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
 import Switch from '@mui/material/Switch'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import RestoreIcon from '@mui/icons-material/Restore'
 import SaveIcon from '@mui/icons-material/Save'
+import SendIcon from '@mui/icons-material/Send'
 
 import Imitation from './utils.imitation'
 
@@ -26,15 +30,21 @@ function App() {
   const onClose = () => Imitation.assignState({ dialogAudioSingleSetting: false })
 
   const onSave = () => {
-    const audioSetting = Imitation.state.audioSetting.find(i => i.id === source.id)
+    const target = {}
 
-    const audio = Imitation.state.audio.find(i => i.id === source.id)
+    const keys = ['id', 'use', 'name', 'volume', 'when', 'offset', 'duration', 'codeInclued', 'codeExclude', 'codeMain']
 
-    if (audioSetting) Object.assign(audioSetting, source)
+    keys.forEach(i => target[i] = source[i])
 
-    if (!audioSetting) Imitation.state.audioSetting.push(source)
+    const audioSetting = Imitation.state.audioSetting.find(i => i.id === target.id)
 
-    if (['use', 'name', 'volume', 'when', 'offset', 'duration'].every(i => source[i] === audio[i])) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i => i.id !== source.id)
+    const audio = Imitation.state.audio.find(i => i.id === target.id)
+
+    if (audioSetting) Object.assign(audioSetting, target)
+
+    if (!audioSetting) Imitation.state.audioSetting.push(target)
+
+    if (keys.every(i => target[i] === audio[i])) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i => i.id !== target.id)
 
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
   }
@@ -88,12 +98,12 @@ function App() {
     <DialogContent dividers>
       <Grid container spacing={1}>
 
-        <Grid item xs={12}>
-          <TextField {...TextFieldSX} style={{ marginBottom: 8 }} fullWidth label='Id' value={source.id} disabled />
+        <Grid item xs={12} style={{ marginBottom: 8 }}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Id' value={source.id} disabled />
         </Grid>
 
-        <Grid item xs={12}>
-          <TextField {...TextFieldSX} style={{ marginBottom: 8 }} fullWidth label='Name' value={source.name} onChange={e => setSource({ ...source, name: e.target.value })} />
+        <Grid item xs={12} style={{ marginBottom: 8 }}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Name' value={source.name} onChange={e => setSource({ ...source, name: e.target.value })} />
         </Grid>
 
         <Grid item xs={12}>
@@ -107,31 +117,39 @@ function App() {
           When {source.when}
         </Grid>
         <Grid item xs={12}>
-          <Slider value={source.when === undefined ? 0 : source.when} onChange={(e, v) => { setSource({ ...source, when: v }) }} min={0} max={5} step={0.1} />
+          <Slider value={source.when} onChange={(e, v) => { setSource({ ...source, when: v }) }} min={0} max={(source.when) + 10} step={0.1} />
         </Grid>
 
         <Grid item xs={12}>
           Offset {source.offset}
         </Grid>
         <Grid item xs={12}>
-          <Slider value={source.offset === undefined ? 0 : source.offset} onChange={(e, v) => { setSource({ ...source, offset: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
+          <Slider value={source.offset} onChange={(e, v) => { setSource({ ...source, offset: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
         </Grid>
 
         <Grid item xs={12}>
           Duration {source.duration}
         </Grid>
         <Grid item xs={12}>
-          <Slider value={source.duration === undefined ? 0 : source.duration} onChange={(e, v) => { setSource({ ...source, duration: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
+          <Slider value={source.duration} onChange={(e, v) => { setSource({ ...source, duration: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
         </Grid>
 
-        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>Use</div>
-          <Switch checked={source.use} onChange={(e) => { setSource({ ...source, use: e.target.checked }) }} />
+        <Grid item xs={12} style={{ marginBottom: 8 }}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} />
+        </Grid>
+
+        <Grid item xs={12} style={{ marginBottom: 8 }}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} />
+        </Grid>
+
+        <Grid item xs={12} style={{ marginBottom: 8 }}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} />
         </Grid>
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => play(source)}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
-          <Button style={{ margin: '0 8px' }} variant='outlined' onClick={() => reset(source)}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' color={source.use ? 'primary' : 'inherit'} onClick={(e) => { setSource({ ...source, use: !source.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => play(source)}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset(source)}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
         </Grid>
 
       </Grid>

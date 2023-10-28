@@ -6,7 +6,7 @@ import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-import { includesArray, requestIdleCallbackProcess } from './utils.common'
+import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
@@ -28,14 +28,6 @@ function ConsoleButton(props) {
     playTimeRef.current = setTimeout(() => setPlayTime(false), 500)
 
     Imitation.setState(pre => { pre.times = pre.times + 1; return pre })
-  }
-
-  const ifPlay = (codePress) => {
-    if (codeMain && codeMain.length !== 0 && !codeMain.includes(codePress[codePress.length - 1])) return
-    if (codeExclude && codeExclude.length !== 0 && includesArray(codeExclude, codePress)) return
-    if (!codeInclued.some(i => includesArray(i, codePress))) return
-
-    play()
   }
 
   const onMouseDown = (e) => {
@@ -94,7 +86,7 @@ function ConsoleButton(props) {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
       setCodePress(result)
 
-      ifPlay(result)
+      if (codeMain.includes(result[result.length - 1]) && codeInclued.every(i => result.includes(i)) && codeExclude.every(i => !result.includes(i))) play()
     }
 
     const keyup = (e) => {
@@ -110,7 +102,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
 
   return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }

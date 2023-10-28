@@ -6,11 +6,11 @@ import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-import { includesArray, requestIdleCallbackProcess } from './utils.common'
+import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { id, name, codeInclued, codeMain, codeExclude } = props.source
+  const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
@@ -30,21 +30,16 @@ function ConsoleButton(props) {
     Imitation.setState(pre => { pre.times = pre.times + 1; return pre })
   }
 
-  const ifPlay = (codePress) => {
-    if (codeMain && codeMain.length !== 0 && !codeMain.includes(codePress[codePress.length - 1])) return
-    if (codeExclude && codeExclude.length !== 0 && includesArray(codeExclude, codePress)) return
-    if (!codeInclued.some(i => includesArray(i, codePress))) return
-
-    play()
-  }
-
   const onMouseDown = (e) => {
+    if (use === false) return
     if (e.button !== 0) return
 
     play()
   }
 
   const onTouchStart = (e) => {
+    if (use === false) return
+
     play()
   }
 
@@ -74,22 +69,24 @@ function ConsoleButton(props) {
       fontSize: 12,
       boxShadow: '0 4px 8px gray',
       transform: active ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
+      opacity: use ? 1 : 0.35
     }
 
     if (name.includes('M') === true) Object.assign(r, { background: active ? 'white' : 'black', color: active ? 'black' : 'white' })
     if (name.includes('M') === false) Object.assign(r, { background: active ? 'black' : 'white', color: active ? 'white' : 'black' })
 
     return r
-  }, [playTime, codePress])
+  }, [use, playTime])
 
   React.useEffect(() => {
+    if (use === false) return
     if (Imitation.state.dialogGlobalSetting !== false || Imitation.state.dialogAudioMultipleSetting !== false || Imitation.state.dialogAudioSingleSetting !== false) return
 
     const keydown = (e) => {
       const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
       setCodePress(result)
 
-      ifPlay(result)
+      if (codeMain.includes(result[result.length - 1]) && codeInclued.every(i => result.includes(i)) && codeExclude.every(i => !result.includes(i))) play()
     }
 
     const keyup = (e) => {
@@ -105,7 +102,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
 
   return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
 }
@@ -154,7 +151,7 @@ function App() {
         ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
           return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             {
-              audioSource.filter(i_ => i_.name.includes(i)).map((i, index) => <ConsoleButton key={index} source={i} />)
+              audioSource.filter(i_ => i_.id.split('.')[1].includes(i)).map((i, index) => <ConsoleButton key={index} source={i} />)
             }
           </div>
         })

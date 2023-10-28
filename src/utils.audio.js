@@ -42,6 +42,10 @@ const loadAudioBuffer = async (source) => {
     await parse(source)
   }
 
+  // source.forEach(i => {
+  //   if (i.duration !== i.audioBuffer.duration) console.log(i.name)
+  // })
+
   return source
 }
 
