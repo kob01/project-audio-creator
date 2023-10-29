@@ -4,12 +4,19 @@ const hash = (n = 16, l = 1) => {
 
 const requestIdleCallbackProcess = async (process) => {
   const r = await new Promise(r => {
-    const loop = () => {
-      requestIdleCallback(async idle => {
-        while (idle.timeRemaining() > 2 && process.done === false) await process.next()
-        if (process.done === false) loop(r)
+    const loop = async () => {
+      if (window.requestIdleCallback) {
+        window.requestIdleCallback(async idle => {
+          while (idle.timeRemaining() > 2 && process.done === false) await process.next()
+          if (process.done === false) loop()
+          if (process.done === true) r()
+        })
+      }
+      if (!window.requestIdleCallback) {
+        while (process.done === false) await process.next()
+        if (process.done === false) loop()
         if (process.done === true) r()
-      })
+      }
     }
 
     loop()

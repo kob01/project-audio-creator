@@ -1,5 +1,7 @@
 import Imitation from './utils.imitation'
 
+const AudioContext_ = window.AudioContext || window.webkitAudioContext
+
 const loadAudioBuffer = async (source) => {
   const parse = async (source) => {
     return new Promise(async r => {
@@ -18,7 +20,7 @@ const loadAudioBuffer = async (source) => {
       })
 
       const audioBuffer = await new Promise(async r => {
-        const audioContext = new AudioContext()
+        const audioContext = new AudioContext_()
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
         r(audioBuffer)
         audioContext.close()
@@ -50,7 +52,7 @@ const loadAudioBuffer = async (source) => {
 }
 
 const playAudioBuffer = async (source) => {
-  const audioContext = new AudioContext()
+  const audioContext = new AudioContext_()
 
   const gain = audioContext.createGain()
   const bufferSource = audioContext.createBufferSource()

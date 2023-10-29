@@ -14,6 +14,8 @@ function ConsoleButton(props) {
 
   const playTimeRef = React.useRef()
 
+  const mouseTimeRef = React.useRef()
+
   const [playTime, setPlayTime] = React.useState(false)
 
   const [codePress, setCodePress] = React.useState([])
@@ -31,22 +33,43 @@ function ConsoleButton(props) {
   }
 
   const onMouseDown = (e) => {
-    if (use === false) return
     if (e.button !== 0) return
 
+    if (use === false) return
+
     play()
+
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre }), 500);
+  }
+
+  const onMouseUp = (e) => {
+    clearInterval(mouseTimeRef.current)
   }
 
   const onTouchStart = (e) => {
     if (use === false) return
 
     play()
+
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre }), 500);
+  }
+
+  const onTouchEnd = (e) => {
+    clearInterval(mouseTimeRef.current)
   }
 
   const onContextMenu = (e) => {
     e.preventDefault()
 
     Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre })
+  }
+
+  const event = {
+    onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
+    onMouseUp: window.ontouchstart === undefined ? onMouseUp : undefined,
+    onTouchStart: window.ontouchstart !== undefined ? onTouchStart : undefined,
+    onTouchEnd: window.ontouchstart !== undefined ? onTouchEnd : undefined,
+    onContextMenu: onContextMenu
   }
 
   const style = React.useMemo(() => {
@@ -106,7 +129,7 @@ function ConsoleButton(props) {
     }
   }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
 
-  return <div style={style} onMouseDown={onMouseDown} onTouchStart={onTouchStart} onContextMenu={onContextMenu}>{name}</div>
+  return <div style={style} {...event}>{name}</div>
 }
 
 function App() {
