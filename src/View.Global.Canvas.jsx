@@ -11,7 +11,6 @@ function App() {
 
   const loop = () => {
     requestAnimationFrame(() => {
-
       const context = canvasRef.current.getContext('2d')
 
       context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
@@ -27,14 +26,13 @@ function App() {
 
         context.beginPath()
         context.arc(x, y, radius, 0, Math.PI * 2)
-        context.fillStyle = 'rgba(0, 0, 0, 1)'
+        context.fillStyle = Imitation.state.theme.palette.primary.main
         context.fill()
 
-        i.radius = i.radius - 1
+        i.radius = i.radius - i.radiusMax / 120
 
-        if (i.radius === 0) viewRef.current = viewRef.current.filter(i_ => i_ !== i)
+        if (i.radius === 0 || i.radius < 0.1) viewRef.current = viewRef.current.filter(i_ => i_ !== i)
       })
-
 
       loop()
     })
@@ -44,28 +42,29 @@ function App() {
     loop()
   }, [])
 
-  React.useEffect(() => {
-    fetch(`https://picsum.photos/800/800`)
-      .then(res => res.blob())
-      .then(blob => {
-        const reader = new FileReader()
-        reader.onload = (event) => ImageRef.current.src = event.target.result
-        reader.readAsDataURL(blob)
-      })
-  }, [])
+  // React.useEffect(() => {
+  //   fetch(`https://picsum.photos/800/800`)
+  //     .then(res => res.blob())
+  //     .then(blob => {
+  //       const reader = new FileReader()
+  //       reader.onload = (event) => ImageRef.current.src = event.target.result
+  //       reader.readAsDataURL(blob)
+  //     })
+  // }, [])
 
   React.useEffect(() => {
     if (Imitation.state.times === 0) return
 
-    const radius = Math.ceil(Math.random() * 50) + 25
-    const x = Math.ceil(Math.random() * (canvasRef.current.width - radius) + radius)
-    const y = Math.ceil(Math.random() * (canvasRef.current.height - radius) + radius)
+    const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 
-    const view = { x, y, radius }
+    const radius = Math.random() * min * 0.1 + min * 0.05
+    const radiusMax = radius
+    const x = Math.random() * (canvasRef.current.width - radius) + radius / 2
+    const y = Math.random() * (canvasRef.current.height - radius) + radius / 2
+
+    const view = { x, y, radius, radiusMax }
 
     viewRef.current.push(view)
-
-    Imitation.assignState({ times: Imitation.state.times - 1 })
   }, [Imitation.state.times])
 
   return <canvas style={{ position: 'absolute', zIndex: -1, top: 0, left: 0, width: '100%', height: '100%' }} width={canvasRef.current ? canvasRef.current.offsetWidth : 0} height={canvasRef.current ? canvasRef.current.offsetHeight : 0} ref={el => canvasRef.current = el}></canvas>

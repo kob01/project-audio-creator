@@ -50,15 +50,12 @@ function ConsoleButton(props) {
   }
 
   const style = React.useMemo(() => {
-    const active = playTime
-
     const r = {
       display: 'inline-block',
       flexShrink: 0,
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      cursor: 'pointer',
       transition: '0.5s all',
       width: 72,
       height: 72,
@@ -67,23 +64,28 @@ function ConsoleButton(props) {
       fontWeight: 'bold',
       position: 'relative',
       fontSize: 12,
-      boxShadow: '0 4px 8px gray',
-      transform: active ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
-      opacity: use ? 1 : 0.35
+      boxShadow: `0 4px 8px gray`,
+      transform: playTime ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
+      opacity: use ? 1 : 0.35,
+      cursor: use ? 'pointer' : 'default',
     }
 
-    if (name.includes('M') === true) Object.assign(r, { background: active ? 'white' : 'black', color: active ? 'black' : 'white' })
-    if (name.includes('M') === false) Object.assign(r, { background: active ? 'black' : 'white', color: active ? 'white' : 'black' })
+    if (name.includes('M') === true) Object.assign(r, { background: playTime ? 'white' : Imitation.state.theme.palette.primary.main, color: playTime ? Imitation.state.theme.palette.primary.main : 'white' })
+    if (name.includes('M') === false) Object.assign(r, { background: playTime ? Imitation.state.theme.palette.primary.main : 'white', color: playTime ? 'white' : Imitation.state.theme.palette.primary.main })
 
     return r
-  }, [use, playTime])
+  }, [use, playTime, Imitation.state.theme.palette.primary.main])
 
   React.useEffect(() => {
     if (use === false) return
+
     if (Imitation.state.dialogGlobalSetting !== false || Imitation.state.dialogAudioMultipleSetting !== false || Imitation.state.dialogAudioSingleSetting !== false) return
 
     const keydown = (e) => {
-      const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
+      if (codePress.includes(e.code)) return
+
+      const result = [...codePress, e.code]
+
       setCodePress(result)
 
       if (codeMain.includes(result[result.length - 1]) && codeInclued.every(i => result.includes(i)) && codeExclude.every(i => !result.includes(i))) play()
@@ -91,9 +93,9 @@ function ConsoleButton(props) {
 
     const keyup = (e) => {
       const result = codePress.filter(i => !i.includes(e.code))
+
       setCodePress(result)
     }
-
 
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
@@ -158,7 +160,7 @@ function App() {
       }
     </div>
 
-    <Slider style={{ position: 'absolute', bottom: 16, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
   </Animation>
 }

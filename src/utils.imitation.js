@@ -8,8 +8,7 @@ ImitationINS.state = {
   theme: {
     palette: {
       primary: {
-        // main: 'rgb(0, 0, 0)',
-        main: 'rgb(25, 118, 210)'
+        main: '#000000',
       }
     }
   },

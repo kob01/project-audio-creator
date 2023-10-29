@@ -14,7 +14,7 @@ import Imitation from './utils.imitation'
 
 function Action() {
   return <>
-    <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogAudioMultipleSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Audio Setting</Button>
+    {/* <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogAudioMultipleSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Audio Setting</Button> */}
     <Button style={{ margin: '4px 0', justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
   </>
 }
