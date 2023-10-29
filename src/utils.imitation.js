@@ -5,6 +5,15 @@ import Imitation from 'imitation-imm/src/index'
 const ImitationINS = new Imitation()
 
 ImitationINS.state = {
+  theme: {
+    palette: {
+      primary: {
+        // main: 'rgb(0, 0, 0)',
+        main: 'rgb(25, 118, 210)'
+      }
+    }
+  },
+
   loading: 0,
 
   message: '',

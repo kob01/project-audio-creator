@@ -1,6 +1,8 @@
 import React from 'react'
 import { HashRouter } from 'react-router-dom'
 
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+
 import Message from './View.Global.Message'
 import Loading from './View.Global.Loading'
 import Canvas from './View.Global.Canvas'
@@ -25,7 +27,7 @@ function App() {
     return () => window.removeEventListener('resize', event)
   }, [])
 
-  return <>
+  return <ThemeProvider theme={createTheme(Imitation.state.theme)}>
     <HashRouter>
       <Loading />
       <Message />
@@ -47,7 +49,7 @@ function App() {
       </div>
 
     </HashRouter>
-  </>
+  </ThemeProvider>
 }
 
 export default Imitation.withBindRender(App)
