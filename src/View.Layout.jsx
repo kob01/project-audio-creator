@@ -3,7 +3,7 @@ import { HashRouter } from 'react-router-dom'
 
 import Message from './View.Global.Message'
 import Loading from './View.Global.Loading'
-import Wave from './View.Global.Wave'
+import Canvas from './View.Global.Canvas'
 
 import Dialog from './View.Dialog'
 import Navigation from './View.Navigation'
@@ -29,7 +29,7 @@ function App() {
     <HashRouter>
       <Loading />
       <Message />
-      <Wave />
+      <Canvas />
 
       <Dialog />
 

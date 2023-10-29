@@ -8,21 +8,64 @@ import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
-import Switch from '@mui/material/Switch'
-import Accordion from '@mui/material/Accordion'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import AccordionDetails from '@mui/material/AccordionDetails'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import RestoreIcon from '@mui/icons-material/Restore'
 import SaveIcon from '@mui/icons-material/Save'
 import SendIcon from '@mui/icons-material/Send'
+import SettingsIcon from '@mui/icons-material/Settings'
+import ClearAllIcon from '@mui/icons-material/ClearAll'
 
 import Imitation from './utils.imitation'
 
-import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
+
+function ControlCode(props) {
+  const [codePress, setCodePress] = React.useState([])
+  const [codePressRecord, setCodePressRecord] = React.useState([])
+  const [codePressCallback, setCodePressCallback] = React.useState()
+
+  const reset = () => {
+    setCodePress([])
+    setCodePressRecord([])
+    setCodePressCallback()
+  }
+
+  React.useEffect(() => {
+    if (codePressCallback === undefined) return
+
+    const keydown = (e) => {
+      const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
+      setCodePress(result)
+
+      const record = codePressRecord.includes(e.code) ? codePressRecord : [...codePressRecord, e.code]
+      setCodePressRecord(record)
+      codePressCallback.callback(record)
+    }
+
+    const keyup = (e) => {
+      const result = codePress.filter(i => !i.includes(e.code))
+      setCodePress(result)
+
+      if (result.length === 0) reset()
+    }
+
+    const click = (e) => reset()
+
+    window.addEventListener('keydown', keydown)
+    window.addEventListener('keyup', keyup)
+    window.addEventListener('click', click)
+
+    return () => {
+      window.removeEventListener('keydown', keydown)
+      window.removeEventListener('keyup', keyup)
+      window.removeEventListener('click', click)
+    }
+  }, [codePress, codePressRecord, codePressCallback])
+
+  return props.children(codePressCallback, setCodePressCallback)
+}
 
 function App() {
   const [source, setSource] = React.useState()
@@ -135,15 +178,45 @@ function App() {
         </Grid>
 
         <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} />
+          <ControlCode>
+            {
+              (codePressCallback, setCodePressCallback) => {
+                return <div style={{ position: 'relative' }}>
+                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} focused={Boolean(codePressCallback)} />
+                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeInclued: v }) }) }} />
+                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeInclued: [] }) }} />
+                </div>
+              }
+            }
+          </ControlCode>
         </Grid>
 
         <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} />
+          <ControlCode>
+            {
+              (codePressCallback, setCodePressCallback) => {
+                return <div style={{ position: 'relative' }}>
+                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} focused={Boolean(codePressCallback)} />
+                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeExclude: v }) }) }} />
+                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeExclude: [] }) }} />
+                </div>
+              }
+            }
+          </ControlCode>
         </Grid>
 
         <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} />
+          <ControlCode>
+            {
+              (codePressCallback, setCodePressCallback) => {
+                return <div style={{ position: 'relative' }}>
+                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} focused={Boolean(codePressCallback)} />
+                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeMain: v }) }) }} />
+                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeMain: [] }) }} />
+                </div>
+              }
+            }
+          </ControlCode>
         </Grid>
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
