@@ -35,11 +35,9 @@ function ConsoleButton(props) {
   const onMouseDown = (e) => {
     if (e.button !== 0) return
 
-    if (use === false) return
+    if (use === true) play()
 
-    play()
-
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
   }
 
   const onMouseUp = (e) => {
@@ -47,11 +45,9 @@ function ConsoleButton(props) {
   }
 
   const onTouchStart = (e) => {
-    if (use === false) return
+    if (use === true) play()
 
-    play()
-
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
   }
 
   const onTouchEnd = (e) => {
@@ -61,7 +57,7 @@ function ConsoleButton(props) {
   const onContextMenu = (e) => {
     e.preventDefault()
 
-    Imitation.setState(pre => { pre.dialogAudioSingleSetting = true; pre.audioSingleSetting = id; return pre })
+    Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre })
   }
 
   const event = {
@@ -102,7 +98,7 @@ function ConsoleButton(props) {
   React.useEffect(() => {
     if (use === false) return
 
-    if (Imitation.state.dialogGlobalSetting !== false || Imitation.state.dialogAudioMultipleSetting !== false || Imitation.state.dialogAudioSingleSetting !== false) return
+    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogAudioSetting !== null) return
 
     const keydown = (e) => {
       if (codePress.includes(e.code)) return
@@ -127,7 +123,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioMultipleSetting, Imitation.state.dialogAudioSingleSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting])
 
   return <div style={style} {...event}>{name}</div>
 }
@@ -139,8 +135,6 @@ function App() {
 
   React.useEffect(async () => {
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
-
-    Imitation.state.audioMultipleSetting = 'SimplePiano'
 
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 

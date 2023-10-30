@@ -25,15 +25,9 @@ ImitationINS.state = {
 
   globalSetting: { volume: 1, scale: 1 },
 
-  dialogGlobalSetting: false,
+  dialogGlobalSetting: null,
 
-  dialogAudioMultipleSetting: false,
-
-  audioMultipleSetting: '',
-
-  dialogAudioSingleSetting: false,
-
-  audioSingleSetting: '',
+  dialogAudioSetting: null,
 }
 
 export default ImitationINS

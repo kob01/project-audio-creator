@@ -61,6 +61,8 @@ const playAudioBuffer = async (source) => {
 
   bufferSource.buffer = source.audioBuffer
   bufferSource.loop = false
+  bufferSource.playbackRate.value = source.rate
+
   bufferSource.connect(gain).connect(audioContext.destination)
 
   bufferSource.start(source.when, source.offset, source.duration)
@@ -68,4 +70,25 @@ const playAudioBuffer = async (source) => {
   bufferSource.addEventListener('ended', () => audioContext.close())
 }
 
-export { loadAudioBuffer, playAudioBuffer }
+const analyseAudioBuffer = async (source) => {
+  const audioContext = new AudioContext_()
+
+  const bufferSource = audioContext.createBufferSource()
+
+  const analyser = audioContext.createAnalyser()
+
+  bufferSource.buffer = source.audioBuffer
+
+  bufferSource.connect(analyser)
+  analyser.connect(audioContext.destination)
+
+  const bufferLength = analyser.frequencyBinCount
+
+  const dataArray = new Uint8Array(bufferLength)
+
+  analyser.getByteFrequencyData(dataArray)
+
+  return dataArray
+}
+
+export { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer }

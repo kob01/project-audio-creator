@@ -17,9 +17,9 @@ import { TextFieldSX } from './utils.mui.sx'
 function App() {
   const [value, setValue] = React.useState({ globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme })
 
-  const onClose = () => Imitation.assignState({ dialogGlobalSetting: false })
+  const onClose = () => Imitation.assignState({ dialogGlobalSetting: null })
 
-  return <Dialog open={Imitation.state.dialogGlobalSetting} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogGlobalSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers>
       <Grid container spacing={1}>

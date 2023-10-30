@@ -5,12 +5,7 @@ SimplePiano.forEach(i => i._id = 'SimplePiano')
 
 BassoonStacF1.forEach(i => i._id = 'BassoonStacF1')
 
-const defaultSetting = {
-  use: true,
-  volume: 1,
-  when: 0,
-  offset: 0
-}
+const defaultSetting = { use: true, volume: 1, when: 0, offset: 0, rate: 1 }
 
 const source = [...SimplePiano, ...BassoonStacF1]
 

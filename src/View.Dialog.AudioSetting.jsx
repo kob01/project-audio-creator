@@ -18,8 +18,12 @@ import ClearAllIcon from '@mui/icons-material/ClearAll'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
+import { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
+
+function AnalyseSource(props) {
+
+}
 
 function ControlCode(props) {
   const [codePress, setCodePress] = React.useState([])
@@ -70,12 +74,12 @@ function ControlCode(props) {
 function App() {
   const [source, setSource] = React.useState()
 
-  const onClose = () => Imitation.assignState({ dialogAudioSingleSetting: false })
+  const onClose = () => Imitation.assignState({ dialogAudioSetting: null })
 
   const onSave = () => {
     const target = {}
 
-    const keys = ['id', 'use', 'name', 'volume', 'when', 'offset', 'duration', 'codeInclued', 'codeExclude', 'codeMain']
+    const keys = ['id', 'use', 'name', 'volume', 'rate', 'when', 'offset', 'duration', 'codeInclued', 'codeExclude', 'codeMain']
 
     keys.forEach(i => target[i] = source[i])
 
@@ -113,9 +117,9 @@ function App() {
   const init = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const setting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.audioSingleSetting)
+    const setting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.dialogAudioSetting.id)
 
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.audioSingleSetting)))
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogAudioSetting.id)))
 
     const source = await loadAudioBuffer(audio)
 
@@ -128,15 +132,15 @@ function App() {
 
   React.useEffect(async () => {
 
-    if (Imitation.state.dialogAudioSingleSetting === true && Imitation.state.audioSingleSetting !== '') {
+    if (Imitation.state.dialogAudioSetting !== null) {
       init()
     }
 
-  }, [Imitation.state.dialogAudioSingleSetting, Imitation.state.audioSingleSetting])
+  }, [Imitation.state.dialogAudioSetting])
 
   if (source === undefined) return null
 
-  return <Dialog open={Imitation.state.dialogAudioSingleSetting} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogAudioSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers>
       <Grid container spacing={1}>
@@ -154,6 +158,13 @@ function App() {
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.volume} onChange={(e, v) => { setSource({ ...source, volume: v }) }} min={0} max={2} step={0.1} />
+        </Grid>
+
+        <Grid item xs={12}>
+          Rate {source.rate}
+        </Grid>
+        <Grid item xs={12}>
+          <Slider value={source.rate} onChange={(e, v) => { setSource({ ...source, rate: v }) }} min={0} max={2} step={0.1} />
         </Grid>
 
         <Grid item xs={12}>
@@ -177,47 +188,55 @@ function App() {
           <Slider value={source.duration} onChange={(e, v) => { setSource({ ...source, duration: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
         </Grid>
 
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <ControlCode>
-            {
-              (codePressCallback, setCodePressCallback) => {
-                return <div style={{ position: 'relative' }}>
-                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} focused={Boolean(codePressCallback)} />
-                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeInclued: v }) }) }} />
-                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeInclued: [] }) }} />
-                </div>
-              }
-            }
-          </ControlCode>
-        </Grid>
+        {
+          window.ontouchstart === undefined ?
+            <>
 
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <ControlCode>
-            {
-              (codePressCallback, setCodePressCallback) => {
-                return <div style={{ position: 'relative' }}>
-                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} focused={Boolean(codePressCallback)} />
-                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeExclude: v }) }) }} />
-                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeExclude: [] }) }} />
-                </div>
-              }
-            }
-          </ControlCode>
-        </Grid>
+              <Grid item xs={12} style={{ marginBottom: 8 }}>
+                <ControlCode>
+                  {
+                    (codePressCallback, setCodePressCallback) => {
+                      return <div style={{ position: 'relative' }}>
+                        <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} focused={Boolean(codePressCallback)} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeInclued: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeInclued: [] }) }} />
+                      </div>
+                    }
+                  }
+                </ControlCode>
+              </Grid>
 
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <ControlCode>
-            {
-              (codePressCallback, setCodePressCallback) => {
-                return <div style={{ position: 'relative' }}>
-                  <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} focused={Boolean(codePressCallback)} />
-                  <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeMain: v }) }) }} />
-                  <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeMain: [] }) }} />
-                </div>
-              }
-            }
-          </ControlCode>
-        </Grid>
+              <Grid item xs={12} style={{ marginBottom: 8 }}>
+                <ControlCode>
+                  {
+                    (codePressCallback, setCodePressCallback) => {
+                      return <div style={{ position: 'relative' }}>
+                        <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} focused={Boolean(codePressCallback)} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeExclude: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeExclude: [] }) }} />
+                      </div>
+                    }
+                  }
+                </ControlCode>
+              </Grid>
+
+              <Grid item xs={12} style={{ marginBottom: 8 }}>
+                <ControlCode>
+                  {
+                    (codePressCallback, setCodePressCallback) => {
+                      return <div style={{ position: 'relative' }}>
+                        <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} focused={Boolean(codePressCallback)} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeMain: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeMain: [] }) }} />
+                      </div>
+                    }
+                  }
+                </ControlCode>
+              </Grid>
+
+            </>
+            : null
+        }
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
           <Button style={{ margin: '0 8px' }} variant='contained' color={source.use ? 'primary' : 'inherit'} onClick={(e) => { setSource({ ...source, use: !source.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
