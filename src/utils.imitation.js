@@ -17,7 +17,7 @@ ImitationINS.state = {
 
   message: '',
 
-  times: 0,
+  canvasTimes: 0,
 
   audio: audio,
 

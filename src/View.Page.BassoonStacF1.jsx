@@ -29,7 +29,7 @@ function ConsoleButton(props) {
 
     playTimeRef.current = setTimeout(() => setPlayTime(false), 500)
 
-    Imitation.setState(pre => { pre.times = pre.times + 1; return pre })
+    Imitation.setState(pre => { pre.canvasTimes = pre.canvasTimes + 1; return pre })
   }
 
   const onMouseDown = (e) => {

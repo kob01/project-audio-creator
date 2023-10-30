@@ -53,7 +53,7 @@ function App() {
   // }, [])
 
   React.useEffect(() => {
-    if (Imitation.state.times === 0) return
+    if (Imitation.state.canvasTimes === 0) return
 
     const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 
@@ -65,9 +65,9 @@ function App() {
     const view = { x, y, radius, radiusMax }
 
     viewRef.current.push(view)
-  }, [Imitation.state.times])
+  }, [Imitation.state.canvasTimes])
 
   return <canvas style={{ position: 'absolute', zIndex: -1, top: 0, left: 0, width: '100%', height: '100%' }} width={canvasRef.current ? canvasRef.current.offsetWidth : 0} height={canvasRef.current ? canvasRef.current.offsetHeight : 0} ref={el => canvasRef.current = el}></canvas>
 }
 
-export default Imitation.withBindRender(App, state => [state.times])
+export default Imitation.withBindRender(App, state => [state.canvasTimes])

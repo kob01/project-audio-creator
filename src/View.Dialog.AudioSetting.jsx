@@ -198,8 +198,8 @@ function App() {
                     (codePressCallback, setCodePressCallback) => {
                       return <div style={{ position: 'relative' }}>
                         <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Inclued' value={source.codeInclued.join(' ')} focused={Boolean(codePressCallback)} />
-                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeInclued: v }) }) }} />
-                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeInclued: [] }) }} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeInclued: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setSource({ ...source, codeInclued: [] }) }} />
                       </div>
                     }
                   }
@@ -212,8 +212,8 @@ function App() {
                     (codePressCallback, setCodePressCallback) => {
                       return <div style={{ position: 'relative' }}>
                         <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Exclude' value={source.codeExclude.join(' ')} focused={Boolean(codePressCallback)} />
-                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeExclude: v }) }) }} />
-                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeExclude: [] }) }} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeExclude: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setSource({ ...source, codeExclude: [] }) }} />
                       </div>
                     }
                   }
@@ -226,8 +226,8 @@ function App() {
                     (codePressCallback, setCodePressCallback) => {
                       return <div style={{ position: 'relative' }}>
                         <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Code Main' value={source.codeMain.join(' ')} focused={Boolean(codePressCallback)} />
-                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color={codePressCallback ? 'primary' : 'inherit'} onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeMain: v }) }) }} />
-                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='inherit' onClick={() => { setSource({ ...source, codeMain: [] }) }} />
+                        <SettingsIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 32, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setCodePressCallback({ callback: (v) => setSource({ ...source, codeMain: v }) }) }} />
+                        <ClearAllIcon style={{ position: 'absolute', top: 0, bottom: 0, right: 8, margin: 'auto', cursor: 'pointer' }} fontSize='small' color='primary' onClick={() => { setSource({ ...source, codeMain: [] }) }} />
                       </div>
                     }
                   }
