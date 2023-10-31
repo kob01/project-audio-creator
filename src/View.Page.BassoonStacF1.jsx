@@ -196,7 +196,7 @@ function App() {
       }
     </div>
 
-    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 0, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
   </Animation>
 }
