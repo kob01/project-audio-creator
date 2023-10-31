@@ -169,8 +169,8 @@ function App() {
     const observer = new ResizeObserver(() => {
       const containerRect = containerRef.current.getBoundingClientRect()
 
-      const widthRate = containerRect.width / 1200
-      const heightRate = containerRect.height / 1000
+      const widthRate = containerRect.width / 700
+      const heightRate = containerRect.height / 600
 
       const rate = Math.min(widthRate, heightRate, 1)
 
