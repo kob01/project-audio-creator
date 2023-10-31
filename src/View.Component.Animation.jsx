@@ -1,7 +1,7 @@
 import React from 'react'
 
 function App(props) {
-  const { tag = 'div', animation, restore, ...params } = props
+  const { tag = 'div', animation, restore, ref_, ...params } = props
 
   const ref = React.useRef()
 
@@ -22,7 +22,7 @@ function App(props) {
     return () => intersectionObserver.disconnect()
   }, [])
 
-  return React.createElement(tag, { ...params, style: { ...params.style, ...style }, ref: el => ref.current = el })
+  return React.createElement(tag, { ...params, style: { ...params.style, ...style }, ref: el => { ref.current = el; if (ref_) ref_(el) } })
 }
 
 export default App

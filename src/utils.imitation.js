@@ -19,6 +19,8 @@ ImitationINS.state = {
 
   canvasTimes: 0,
 
+  consoleExpand: false,
+
   audio: audio,
 
   audioSetting: [],

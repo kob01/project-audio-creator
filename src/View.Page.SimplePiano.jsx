@@ -129,6 +129,8 @@ function ConsoleButton(props) {
 }
 
 function App() {
+  const containerRef = React.useRef()
+
   const [scale, setScale] = React.useState(1)
 
   const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'SimplePiano'))
@@ -163,9 +165,26 @@ function App() {
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }, [Imitation.state.audioSetting])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }}>
+  React.useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      const containerRect = containerRef.current.getBoundingClientRect()
 
-    <div style={{ width: 1500, height: 1000, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }}>
+      const widthRate = containerRect.width / 1200
+      const heightRate = containerRect.height / 1000
+
+      const rate = Math.min(widthRate, heightRate, 1)
+
+      setScale(rate)
+    })
+
+    observer.observe(containerRef.current)
+
+    return () => observer.disconnect()
+  }, [])
+
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
+
+    <div style={{ width: 1200, height: 1000, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }}>
       {
         ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
           return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
