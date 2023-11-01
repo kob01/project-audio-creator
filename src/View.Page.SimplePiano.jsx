@@ -130,6 +130,7 @@ function ConsoleButton(props) {
 
 function App() {
   const containerRef = React.useRef()
+  const contentRef = React.useRef()
 
   const [scale, setScale] = React.useState(1)
 
@@ -167,10 +168,8 @@ function App() {
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
-      const containerRect = containerRef.current.getBoundingClientRect()
-
-      const widthRate = (containerRect.width - 32) / 1056
-      const heightRate = (containerRect.height - 135) / 792
+      const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
+      const heightRate = (containerRef.current.offsetHeight - 135) / contentRef.current.offsetHeight
 
       const rate = Math.min(widthRate, heightRate, 1)
 
@@ -184,7 +183,7 @@ function App() {
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
 
-    <div style={{ width: 1056, height: 792, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }}>
+    <div style={{ height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {
         ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
           return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -196,7 +195,7 @@ function App() {
       }
     </div>
 
-    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, left: 0, right: 0, margin: 'auto', width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
   </Animation>
 }
