@@ -73,6 +73,10 @@ function ConsoleButton(props) {
     Imitation.assignState({ dragTarget: props.source })
   }
 
+  const onDragEnd = (e) => {
+    Imitation.assignState({ dragTarget: null })
+  }
+
   const event = {
     onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
     onMouseUp: window.ontouchstart === undefined ? onMouseUp : undefined,
@@ -82,6 +86,7 @@ function ConsoleButton(props) {
     onTouchMove: window.ontouchstart !== undefined ? onTouchMove : undefined,
     onContextMenu: onContextMenu,
     onDragStart: Imitation.state.consoleCurrent !== null ? onDragStart : undefined,
+    onDragEnd: Imitation.state.consoleCurrent !== null ? onDragEnd : undefined,
     draggable: Imitation.state.consoleCurrent !== null ? true : false,
   }
 

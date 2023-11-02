@@ -15,9 +15,26 @@ import { hash } from './utils.common'
 import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
+import source from '../src-audio/SimplePiano'
 
 function ConsoleSource(props) {
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant='contained' style={{ position: 'absolute', fontSize: 12, transition: '0.5s all', ...props.style }}>{props.source.id}</Animation>
+  const onClick = () => {
+    Imitation.assignState({ dialogConsoleAudioSetting: props.source })
+  }
+
+  const style = React.useMemo(() => {
+    const r = {
+      position: 'absolute',
+      fontSize: 12,
+      opacity: props.source.use ? 1 : 0.35,
+      transition: '0.5s all',
+      ...props.style
+    }
+
+    return r
+  }, [props.source.use, props.style])
+
+  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant='outlined' style={style} onClick={onClick}>{props.source.id}</Animation>
 }
 
 function Console() {
@@ -70,7 +87,7 @@ function Console() {
 
     <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, overflow: 'auto', position: 'relative' }} {...drag}>
 
-      <div style={{ width: '100%', height: 2, position: 'absolute', bottom: Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? 8 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+      <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? 8 : 'calc(50% - 1px)', transition: '0.5s all' }}>
         <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main }}></div>
 
         <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
