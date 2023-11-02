@@ -17,17 +17,23 @@ ImitationINS.state = {
 
   message: '',
 
-  canvasTimes: 0,
+  canvasAnimation: 0,
 
   navigationDrawer: false,
 
-  consoleExpand: false,
+  dragTarget: null,
 
   audio: audio,
 
   audioSetting: [],
 
   globalSetting: { volume: 1, scale: 1 },
+
+  consoleExpand: true,
+
+  console: [],
+
+  consoleCurrent: null,
 
   dialogGlobalSetting: null,
 

@@ -1,6 +1,7 @@
 import React from 'react'
 
 import Slider from '@mui/material/Slider'
+import Button from '@mui/material/Button'
 
 import Animation from './View.Component.Animation'
 
@@ -29,7 +30,7 @@ function ConsoleButton(props) {
 
     playTimeRef.current = setTimeout(() => setPlayTime(false), 500)
 
-    Imitation.setState(pre => { pre.canvasTimes = pre.canvasTimes + 1; return pre })
+    Imitation.setState(pre => { pre.canvasAnimation = pre.canvasAnimation + 1; return pre })
   }
 
   const onMouseDown = (e) => {
@@ -38,6 +39,10 @@ function ConsoleButton(props) {
     if (use === true) play()
 
     mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
+  }
+
+  const onMouseMove = (e) => {
+    clearInterval(mouseTimeRef.current)
   }
 
   const onMouseUp = (e) => {
@@ -50,6 +55,10 @@ function ConsoleButton(props) {
     mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
   }
 
+  const onTouchMove = (e) => {
+    clearInterval(mouseTimeRef.current)
+  }
+
   const onTouchEnd = (e) => {
     clearInterval(mouseTimeRef.current)
   }
@@ -60,37 +69,40 @@ function ConsoleButton(props) {
     Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre })
   }
 
+  const onDragStart = (e) => {
+    Imitation.assignState({ dragTarget: props.source })
+  }
+
   const event = {
     onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
     onMouseUp: window.ontouchstart === undefined ? onMouseUp : undefined,
+    onMouseMove: window.ontouchstart === undefined ? onMouseMove : undefined,
     onTouchStart: window.ontouchstart !== undefined ? onTouchStart : undefined,
     onTouchEnd: window.ontouchstart !== undefined ? onTouchEnd : undefined,
-    onContextMenu: onContextMenu
+    onTouchMove: window.ontouchstart !== undefined ? onTouchMove : undefined,
+    onContextMenu: onContextMenu,
+    onDragStart: Imitation.state.consoleCurrent !== null ? onDragStart : undefined,
+    draggable: Imitation.state.consoleCurrent !== null ? true : false,
   }
 
   const style = React.useMemo(() => {
     const r = {
-      display: 'inline-block',
-      flexShrink: 0,
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      transition: '0.5s all',
       width: 72,
       height: 72,
       margin: 8,
       borderRadius: 12,
-      fontWeight: 'bold',
-      position: 'relative',
       fontSize: 12,
       boxShadow: `0 4px 8px gray`,
       transform: playTime ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
       opacity: use ? 1 : 0.35,
       cursor: use ? 'pointer' : 'default',
+      transition: '0.5s all',
     }
 
-    if (name.includes('M') === true) Object.assign(r, { background: playTime ? 'white' : Imitation.state.theme.palette.primary.main, color: playTime ? Imitation.state.theme.palette.primary.main : 'white' })
-    if (name.includes('M') === false) Object.assign(r, { background: playTime ? Imitation.state.theme.palette.primary.main : 'white', color: playTime ? 'white' : Imitation.state.theme.palette.primary.main })
+    if (name.includes('M') === true && playTime === true) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
+    if (name.includes('M') === true && playTime === false) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
+    if (name.includes('M') === false && playTime === true) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
+    if (name.includes('M') === false && playTime === false) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
 
     return r
   }, [use, playTime, Imitation.state.theme.palette.primary.main])
@@ -125,7 +137,7 @@ function ConsoleButton(props) {
     }
   }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting])
 
-  return <div style={style} {...event}>{name}</div>
+  return <Button variant='contained' style={style} {...event}>{name}</Button>
 }
 
 function App() {
