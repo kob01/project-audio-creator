@@ -14,7 +14,7 @@ import RestoreIcon from '@mui/icons-material/Restore'
 import SaveIcon from '@mui/icons-material/Save'
 import SendIcon from '@mui/icons-material/Send'
 import SettingsIcon from '@mui/icons-material/Settings'
-import ClearAllIcon from '@mui/icons-material/ClearAll'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 import Imitation from './utils.imitation'
 
@@ -79,21 +79,17 @@ function App() {
   const onSave = () => {
     const target = {}
 
-    const keys = ['id', 'use', 'name', 'volume', 'rate', 'when', 'offset', 'duration', 'codeInclued', 'codeExclude', 'codeMain']
+    const keys = ['id', 'use', 'volume', 'rate', 'when', 'offset', 'duration']
 
     keys.forEach(i => target[i] = source[i])
 
-    const audioSetting = Imitation.state.audioSetting.find(i => i.id === target.id)
+    Object.assign(Imitation.state.dialogConsoleAudioSetting, target)
 
-    const audio = Imitation.state.audio.find(i => i.id === target.id)
+    Imitation.dispatch()
+  }
 
-    if (audioSetting) Object.assign(audioSetting, target)
-
-    if (!audioSetting) Imitation.state.audioSetting.push(target)
-
-    if (keys.every(i => target[i] === audio[i])) Imitation.state.audioSetting = Imitation.state.audioSetting.filter(i => i.id !== target.id)
-
-    Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
+  const onDelete = () => {
+    Imitation.setState(pre => { pre.consoleCurrent.group = pre.consoleCurrent.group.filter(i => i !== pre.dialogConsoleAudioSetting); return pre; })
   }
 
   const play = async (source) => {
@@ -103,7 +99,7 @@ function App() {
   }
 
   const reset = async (source) => {
-    setSource({...source, ...Imitation.state.dialogConsoleAudioSetting})
+    setSource({ ...source, ...Imitation.state.dialogConsoleAudioSetting })
   }
 
   const init = async () => {
@@ -185,6 +181,7 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
+      <Button variant='contained' onClick={() => { onDelete(); onClose(); }} color='error'><DeleteIcon style={{ marginRight: 4 }} />Delete</Button>
       <Button variant='contained' onClick={() => { onSave(); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>

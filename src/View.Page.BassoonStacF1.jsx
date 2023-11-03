@@ -11,7 +11,7 @@ import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
+  const { name, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
@@ -38,7 +38,7 @@ function ConsoleButton(props) {
 
     if (use === true) play()
 
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
   }
 
   const onMouseMove = (e) => {
@@ -52,7 +52,7 @@ function ConsoleButton(props) {
   const onTouchStart = (e) => {
     if (use === true) play()
 
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
   }
 
   const onTouchMove = (e) => {
@@ -66,7 +66,7 @@ function ConsoleButton(props) {
   const onContextMenu = (e) => {
     e.preventDefault()
 
-    Imitation.setState(pre => { pre.dialogAudioSetting = { id }; return pre })
+    Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre })
   }
 
   const onDragStart = (e) => {
