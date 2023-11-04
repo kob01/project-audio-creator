@@ -16,9 +16,15 @@ import Imitation from './utils.imitation'
 import { TextFieldSX } from './utils.mui.sx'
 
 function App() {
-  const [value, setValue] = React.useState({ globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme, useCanvasAnimation: Imitation.state.useCanvasAnimation })
+  const [value, setValue] = React.useState()
+
+  React.useEffect(() => {
+    setValue({ globalSetting: JSON.parse(JSON.stringify(Imitation.state.globalSetting)), theme: JSON.parse(JSON.stringify(Imitation.state.theme)), useCanvasAnimation: JSON.parse(JSON.stringify(Imitation.state.useCanvasAnimation)) })
+  }, [Imitation.state.dialogGlobalSetting])
 
   const onClose = () => Imitation.assignState({ dialogGlobalSetting: null })
+
+  if (value === undefined) return null
 
   return <Dialog open={Imitation.state.dialogGlobalSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
@@ -44,7 +50,7 @@ function App() {
         </Grid>
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button style={{ margin: '0 8px' }} variant='contained' color={value.useCanvasAnimation ? 'primary' : 'inherit'} onClick={(e) => {value.useCanvasAnimation = !value.useCanvasAnimation; setValue({ ...value }) }}><ImageIcon style={{ marginRight: 4 }} />Canvas Animation</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' color={value.useCanvasAnimation ? 'primary' : 'inherit'} onClick={(e) => { value.useCanvasAnimation = !value.useCanvasAnimation; setValue({ ...value }) }}><ImageIcon style={{ marginRight: 4 }} />Canvas Animation</Button>
         </Grid>
 
       </Grid>

@@ -11,7 +11,7 @@ import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { name, use, codeInclued, codeMain, codeExclude } = props.source
+  const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
@@ -109,6 +109,13 @@ function ConsoleButton(props) {
     onContextMenu: onContextMenu,
   }
 
+  const variant = React.useMemo(() => {
+    if (id.includes('M') === true && playTime === true) return 'contained'
+    if (id.includes('M') === true && playTime === false) return 'contained'
+    if (id.includes('M') === false && playTime === true) return 'outlined'
+    if (id.includes('M') === false && playTime === false) return 'outlined'
+  }, [playTime])
+
   const style = React.useMemo(() => {
     const r = {
       width: 72,
@@ -117,17 +124,12 @@ function ConsoleButton(props) {
       borderRadius: 12,
       fontSize: 12,
       boxShadow: `0 4px 8px gray`,
+      border: 'none',
       transform: playTime ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
       opacity: use ? 1 : 0.35,
       cursor: use ? 'pointer' : 'default',
       transition: '0.5s all',
     }
-
-    if (name.includes('M') === true && playTime === true) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
-    if (name.includes('M') === true && playTime === false) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
-    if (name.includes('M') === false && playTime === true) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
-    if (name.includes('M') === false && playTime === false) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
-
     return r
   }, [use, playTime, Imitation.state.theme.palette.primary.main])
 
@@ -167,7 +169,7 @@ function ConsoleButton(props) {
     }
   }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
 
-  return <Button variant='contained' style={style} {...event}>{name}</Button>
+  return <Button variant={variant} style={style} {...event}>{name}</Button>
 }
 
 function App() {
@@ -178,6 +180,8 @@ function App() {
   const [scale, setScale] = React.useState(1)
 
   const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'SimplePiano'))
+
+  const consoleFullScreen = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
 
   React.useEffect(async () => {
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
@@ -210,6 +214,8 @@ function App() {
   }, [Imitation.state.audioSetting])
 
   React.useEffect(() => {
+    if (consoleFullScreen) return null
+
     const observer = new ResizeObserver(() => {
       const event = () => {
         const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
@@ -228,9 +234,9 @@ function App() {
     observer.observe(containerRef.current)
 
     return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
-  }, [])
+  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
 
     <div style={{ height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {
@@ -249,4 +255,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

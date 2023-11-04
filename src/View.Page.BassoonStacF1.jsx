@@ -181,6 +181,8 @@ function App() {
 
   const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'BassoonStacF1'))
 
+  const consoleFullScreen = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
+
   React.useEffect(async () => {
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'BassoonStacF1')))
 
@@ -212,6 +214,8 @@ function App() {
   }, [Imitation.state.audioSetting])
 
   React.useEffect(() => {
+    if (consoleFullScreen) return null
+
     const observer = new ResizeObserver(() => {
       const event = () => {
         const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
@@ -230,9 +234,9 @@ function App() {
     observer.observe(containerRef.current)
 
     return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
-  }, [])
+  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
 
     <div style={{ height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {
@@ -251,4 +255,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

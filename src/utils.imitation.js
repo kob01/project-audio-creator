@@ -39,6 +39,8 @@ ImitationINS.state = {
 
   consoleContainerRef: null,
 
+  consoleFullScreen: false,
+
   dialogGlobalSetting: null,
 
   dialogAudioSetting: null,
