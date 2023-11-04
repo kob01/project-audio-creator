@@ -11,11 +11,13 @@ import { requestIdleCallbackProcess } from './utils.common'
 import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
 
 function ConsoleButton(props) {
-  const { name, use, codeInclued, codeMain, codeExclude } = props.source
+  const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playTimeRef = React.useRef()
 
   const mouseTimeRef = React.useRef()
+
+  const mouseDownRef = React.useRef()
 
   const [playTime, setPlayTime] = React.useState(false)
 
@@ -33,33 +35,65 @@ function ConsoleButton(props) {
     Imitation.setState(pre => { pre.canvasAnimation = pre.canvasAnimation + 1; return pre })
   }
 
+  const keydown = (e) => {
+    if (codePress.includes(e.code)) return
+
+    const result = [...codePress, e.code]
+
+    setCodePress(result)
+
+    if (codeMain.includes(result[result.length - 1]) && codeInclued.every(i => result.includes(i)) && codeExclude.every(i => !result.includes(i))) play()
+  }
+
+  const keyup = (e) => {
+    const result = codePress.filter(i => !i.includes(e.code))
+
+    setCodePress(result)
+  }
+
   const onMouseDown = (e) => {
     if (e.button !== 0) return
 
     if (use === true) play()
 
+    mouseDownRef.current = true
+
     mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
   }
 
   const onMouseMove = (e) => {
+    if (mouseDownRef.current === true && Imitation.state.dragTarget === null) Imitation.assignState({ dragTarget: props.source })
+
     clearInterval(mouseTimeRef.current)
   }
 
   const onMouseUp = (e) => {
+    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
+
+    mouseDownRef.current = false
+
     clearInterval(mouseTimeRef.current)
   }
 
   const onTouchStart = (e) => {
     if (use === true) play()
 
+    mouseDownRef.current = true
+
     mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
   }
 
   const onTouchMove = (e) => {
+    if (mouseDownRef.current === true && Imitation.state.dragTarget === null) Imitation.assignState({ dragTarget: props.source })
+
     clearInterval(mouseTimeRef.current)
   }
 
   const onTouchEnd = (e) => {
+    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
+
+    mouseDownRef.current = false
+
     clearInterval(mouseTimeRef.current)
   }
 
@@ -69,26 +103,18 @@ function ConsoleButton(props) {
     Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre })
   }
 
-  const onDragStart = (e) => {
-    Imitation.assignState({ dragTarget: props.source })
-  }
-
-  const onDragEnd = (e) => {
-    Imitation.assignState({ dragTarget: null })
-  }
-
   const event = {
     onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
-    onMouseUp: window.ontouchstart === undefined ? onMouseUp : undefined,
-    onMouseMove: window.ontouchstart === undefined ? onMouseMove : undefined,
     onTouchStart: window.ontouchstart !== undefined ? onTouchStart : undefined,
-    onTouchEnd: window.ontouchstart !== undefined ? onTouchEnd : undefined,
-    onTouchMove: window.ontouchstart !== undefined ? onTouchMove : undefined,
     onContextMenu: onContextMenu,
-    onDragStart: Imitation.state.consoleCurrent !== null ? onDragStart : undefined,
-    onDragEnd: Imitation.state.consoleCurrent !== null ? onDragEnd : undefined,
-    draggable: Imitation.state.consoleCurrent !== null ? true : false,
   }
+
+  const variant = React.useMemo(() => {
+    if (id.includes('M') === true && playTime === true) return 'contained'
+    if (id.includes('M') === true && playTime === false) return 'contained'
+    if (id.includes('M') === false && playTime === true) return 'outlined'
+    if (id.includes('M') === false && playTime === false) return 'outlined'
+  }, [playTime])
 
   const style = React.useMemo(() => {
     const r = {
@@ -98,40 +124,41 @@ function ConsoleButton(props) {
       borderRadius: 12,
       fontSize: 12,
       boxShadow: `0 4px 8px gray`,
+      border: 'none',
       transform: playTime ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
       opacity: use ? 1 : 0.35,
       cursor: use ? 'pointer' : 'default',
       transition: '0.5s all',
     }
-
-    if (name.includes('M') === true && playTime === true) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
-    if (name.includes('M') === true && playTime === false) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
-    if (name.includes('M') === false && playTime === true) Object.assign(r, { background: Imitation.state.theme.palette.primary.main, color: 'white' })
-    if (name.includes('M') === false && playTime === false) Object.assign(r, { background: 'white', color: Imitation.state.theme.palette.primary.main })
-
     return r
   }, [use, playTime, Imitation.state.theme.palette.primary.main])
+
+  React.useEffect(() => {
+    if (window.ontouchstart === undefined) {
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+
+      return () => {
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+      }
+    }
+
+    if (window.ontouchstart !== undefined) {
+      window.addEventListener('touchmove', onTouchMove)
+      window.addEventListener('touchend', onTouchEnd)
+
+      return () => {
+        window.removeEventListener('touchmove', onTouchMove)
+        window.removeEventListener('touchend', onTouchEnd)
+      }
+    }
+  }, [])
 
   React.useEffect(() => {
     if (use === false) return
 
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogAudioSetting !== null || Imitation.state.dialogConsoleAudioSetting !== null) return
-
-    const keydown = (e) => {
-      if (codePress.includes(e.code)) return
-
-      const result = [...codePress, e.code]
-
-      setCodePress(result)
-
-      if (codeMain.includes(result[result.length - 1]) && codeInclued.every(i => result.includes(i)) && codeExclude.every(i => !result.includes(i))) play()
-    }
-
-    const keyup = (e) => {
-      const result = codePress.filter(i => !i.includes(e.code))
-
-      setCodePress(result)
-    }
 
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
@@ -142,7 +169,7 @@ function ConsoleButton(props) {
     }
   }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
 
-  return <Button variant='contained' style={style} {...event}>{name}</Button>
+  return <Button variant={variant} style={style} {...event}>{name}</Button>
 }
 
 function App() {
@@ -224,4 +251,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

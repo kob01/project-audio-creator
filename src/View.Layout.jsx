@@ -6,6 +6,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Message from './View.Global.Message'
 import Loading from './View.Global.Loading'
 import Canvas from './View.Global.Canvas'
+import Drag from './View.Global.Drag'
 
 import Dialog from './View.Dialog'
 import Navigation from './View.Navigation'
@@ -34,7 +35,7 @@ function App() {
       <Loading />
       <Message />
       <Canvas />
-
+      <Drag />
       <Dialog />
 
       <div style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden' }}>

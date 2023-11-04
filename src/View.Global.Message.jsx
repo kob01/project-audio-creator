@@ -12,7 +12,7 @@ function App() {
 
     if (s.current) clearTimeout(s.current)
 
-    s.current = setTimeout(() => { Imitation.assignState({ message: '' }); s.current = null }, 1500)
+    s.current = setTimeout(() => { Imitation.assignState({ message: null }); s.current = null }, 1500)
   }, [Imitation.state.message])
 
   return <Snackbar open={Imitation.state.message ? true : false} message={Imitation.state.message} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} />

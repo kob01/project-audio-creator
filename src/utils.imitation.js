@@ -15,7 +15,7 @@ ImitationINS.state = {
 
   loading: 0,
 
-  message: '',
+  message: null,
 
   useCanvasAnimation: true,
 
@@ -31,11 +31,13 @@ ImitationINS.state = {
 
   globalSetting: { volume: 1, scale: 1 },
 
-  consoleExpand: false,
+  consoleExpand: true,
 
   console: [],
 
   consoleCurrent: null,
+
+  consoleContainerRef: null,
 
   dialogGlobalSetting: null,
 

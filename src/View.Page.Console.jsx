@@ -40,20 +40,6 @@ function ConsoleSource(props) {
 }
 
 function Console() {
-  const onDragOver = (e) => {
-    e.preventDefault()
-  }
-
-  const onDrop = (e) => {
-    const dragTarget = Imitation.state.dragTarget
-
-    const item = { id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
-
-    Imitation.setState(pre => { pre.consoleCurrent.group.push(item); return pre })
-  }
-
-  const drag = { onDragOver, onDrop }
-
   const consoleAdd = () => Imitation.setState(pre => { pre.console.push({ name: hash(6), group: [] }); return pre })
 
   const consoleDelete = () => Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
@@ -93,7 +79,7 @@ function Console() {
       Imitation.state.console.length > 0 ? <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' /> : null
     }
 
-    <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }} {...drag}>
+    <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
       <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
         <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
@@ -169,7 +155,7 @@ function App() {
   return <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
     <div style={{ position: 'relative', margin: 'auto', width: 'calc(100% - 32px)', height: Imitation.state.consoleExpand ? 300 : 0, marginBottom: Imitation.state.consoleExpand ? 16 : 0, boxShadow: '0 4px 8px gray', borderRadius: 12, overflow: 'hidden', opacity: Imitation.state.consoleExpand ? 1 : 0, transition: '0.5s all' }}>
-      <div style={{ position: 'absolute', width: '100%', height: 300, bottom: 0, left: 0, padding: 16, background: '#ffffff' }}>
+      <div style={{ position: 'absolute', width: '100%', height: 300, bottom: 0, left: 0, padding: 16, background: '#ffffff' }} ref={el => Imitation.state.consoleContainerRef = el}>
         <Console />
       </div>
     </div>
