@@ -29,9 +29,9 @@ ImitationINS.state = {
 
   audioSetting: [],
 
-  globalSetting: { volume: 1, scale: 1 },
+  globalSetting: { volume: 0, scale: 1 },
 
-  consoleExpand: true,
+  consoleExpand: false,
 
   console: [],
 

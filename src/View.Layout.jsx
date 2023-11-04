@@ -23,18 +23,12 @@ function App() {
       if (window.innerWidth < 2000 || window.innerHeight < 1000) Imitation.assignState({ message: `suggest 'ctrl -' to zoom out screen` })
     }
 
-    const touchmove = e => {
-      e.preventDefault()
-    }
-
     resize()
 
     window.addEventListener('resize', resize)
-    window.addEventListener('touchmove', touchmove, { passive: false })
 
     return () => {
       window.removeEventListener('resize', resize)
-      window.removeEventListener('touchmove', touchmove)
     } 
   }, [])
 
