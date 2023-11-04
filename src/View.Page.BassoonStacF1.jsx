@@ -197,12 +197,12 @@ function App() {
 
       clearTimeout(timeoutRef.current)
 
-      timeoutRef.current = setTimeout(event, 100)
+      timeoutRef.current = setTimeout(event, 500)
     })
 
     observer.observe(containerRef.current)
 
-    return () => observer.disconnect()
+    return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
   }, [])
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
