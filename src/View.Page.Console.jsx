@@ -56,12 +56,18 @@ function Console() {
 
   const maxTime = Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? Math.max(...Imitation.state.consoleCurrent.group.map((i) => i.when + i.duration / i.rate)) : 0
 
+  React.useEffect(() => {
+    if (Imitation.state.console.length > 0 && Imitation.state.consoleCurrent === null) {
+      Imitation.setState(pre => { pre.consoleCurrent = pre.console[0]; return pre })
+    }
+  }, [JSON.stringify(Imitation.state.console)])
+
   return <div style={{ width: '100%', height: '100%', display: 'flex' }}>
 
     <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Button fullWidth variant='contained'><PlayArrowIcon /></Button>
       <Button style={{ marginTop: 4 }} fullWidth variant='contained'><PauseIcon /></Button>
-      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => Imitation.setState(pre => { pre.console.push({ id: hash(6), name: hash(6), group: [] }); pre.consoleCurrent = pre.console[0]; return pre })}><PlaylistAddIcon /></Button>
+      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => Imitation.setState(pre => { pre.console.push({ id: hash(6), name: hash(6), group: [] }); return pre })}><PlaylistAddIcon /></Button>
       {
         Imitation.state.consoleCurrent ?
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })}><DeleteIcon /></Button>

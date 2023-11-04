@@ -13,16 +13,41 @@ import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
 
-function Action() {
-  return <>
-    {/* <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() =>  Imitation.assignState({ dialogAudioMultipleSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Audio Setting</Button> */}
-    <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
-  </>
-}
-
 function App() {
   const push = useHistory().push
   const pathname = useLocation().pathname
+
+  const download = () => {
+    const data = JSON.stringify({ audioSetting: Imitation.state.audioSetting, console: Imitation.state.console })
+
+    const blob = new Blob([data], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'library.json'
+    link.click()
+
+    URL.revokeObjectURL(url)
+  }
+
+  const upload = (e) => {
+    const file = e.target.files[0]
+
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result)
+
+      Imitation.state.audioSetting = data.audioSetting
+      Imitation.state.console = data.console
+      Imitation.state.message = 'Loaded'
+
+      Imitation.dispatch()
+    }
+
+    reader.readAsText(file)
+  }
 
   return <>
     <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 2, top: 16, left: 16, transition: '0.5s all' }} variant='contained' onClick={() => { push('/'); }}>
@@ -43,7 +68,12 @@ function App() {
         </div>
 
         <div>
-          <Action />
+          <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => download()}><SettingsIcon style={{ marginRight: 4 }} />Data Download</Button>
+          <label>
+            <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' component='div'><SettingsIcon style={{ marginRight: 4 }} />Data Upload</Button>
+            <input type='file' style={{ display: 'none' }} onChange={(e) => upload(e)}></input>
+          </label>
+          <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
         </div>
       </div>
     </Drawer>
