@@ -14,4 +14,4 @@ function App() {
   </>
 }
 
-export default Imitation.withBindRender(App)
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting])

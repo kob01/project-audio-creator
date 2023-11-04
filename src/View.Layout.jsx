@@ -56,4 +56,4 @@ function App() {
   </ThemeProvider>
 }
 
-export default Imitation.withBindRender(App)
+export default Imitation.withBindRender(App, state => [JSON.stringify(state.theme)])

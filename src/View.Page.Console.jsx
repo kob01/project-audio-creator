@@ -15,7 +15,6 @@ import { hash } from './utils.common'
 import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
-import source from '../src-audio/SimplePiano'
 
 function ConsoleSource(props) {
   const onClick = () => {
@@ -24,17 +23,20 @@ function ConsoleSource(props) {
 
   const style = React.useMemo(() => {
     const r = {
+      width: props.width,
+      height: props.height,
+      left: props.left,
+      top: props.top,
       position: 'absolute',
       fontSize: 12,
       opacity: props.source.use ? 1 : 0.35,
       transition: '0.5s all',
-      ...props.style
     }
 
     return r
-  }, [props.source.use, props.style])
+  }, [props.source.use, props.width, props.height, props.left, props.top])
 
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant='outlined' style={style} onClick={onClick}>{props.source.id}</Animation>
+  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: props.source.use ? 1 : 0.35 }]} variant='outlined' style={style} onClick={onClick}>{props.name}</Animation>
 }
 
 function Console() {
@@ -53,10 +55,6 @@ function Console() {
   const drag = { onDragOver, onDrop }
 
   const maxTime = Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? Math.max(...Imitation.state.consoleCurrent.group.map((i) => i.when + i.duration / i.rate)) : 0
-
-  React.useEffect(() => {
-
-  }, [Imitation.state.console])
 
   return <div style={{ width: '100%', height: '100%', display: 'flex' }}>
 
@@ -126,9 +124,22 @@ function Console() {
             <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
               {
                 Imitation.state.consoleCurrent.group.map((i, index) => {
-                  return <ConsoleSource key={index} source={i} style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, top: index * 48, left: `${i.when / maxTime * 100}%` }} />
+                  var name = undefined
+
+                  if (name === undefined) {
+                    const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
+                    if (audioSetting) name = audioSetting.name
+                  }
+                  if (name === undefined) {
+                    const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
+                    if (audio) name = audio.name
+                  }
+
+                  return <ConsoleSource key={index} source={i} name={name} width={`${i.duration / i.rate / maxTime * 100}%`} height={40} top={index * 48} left={`${i.when / maxTime * 100}%`} />
                 })
               }
+
+              <div style={{ width: '100%', height: 16, position: 'absolute', top: Imitation.state.consoleCurrent.group.length * 48 }}></div>
             </div>
             : null
         }
@@ -155,4 +166,4 @@ function App() {
   </div>
 }
 
-export default App
+export default Imitation.withBindRender(App, state => [state.dragTarget, state.consoleExpand, JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.theme)])

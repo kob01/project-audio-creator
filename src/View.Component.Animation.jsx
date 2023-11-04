@@ -20,7 +20,7 @@ function App(props) {
     intersectionObserver.observe(ref.current)
 
     return () => intersectionObserver.disconnect()
-  }, [])
+  }, [JSON.stringify(props.animation)])
 
   return React.createElement(tag, { ...params, style: { ...params.style, ...style }, ref: el => { ref.current = el; if (ref_) ref_(el) } })
 }

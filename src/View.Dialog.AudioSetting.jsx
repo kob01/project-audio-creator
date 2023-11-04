@@ -252,4 +252,4 @@ function App() {
   </Dialog>
 }
 
-export default App
+export default Imitation.withBindRender(App, state => [state.dialogAudioSetting, JSON.stringify(state.audioSetting), JSON.stringify(state.audio)])

@@ -115,7 +115,7 @@ function ConsoleButton(props) {
   React.useEffect(() => {
     if (use === false) return
 
-    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogAudioSetting !== null) return
+    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogAudioSetting !== null || Imitation.state.dialogConsoleAudioSetting !== null) return
 
     const keydown = (e) => {
       if (codePress.includes(e.code)) return
@@ -140,7 +140,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
 
   return <Button variant='contained' style={style} {...event}>{name}</Button>
 }
@@ -148,6 +148,7 @@ function ConsoleButton(props) {
 function App() {
   const containerRef = React.useRef()
   const contentRef = React.useRef()
+  const timeoutRef = React.useRef()
 
   const [scale, setScale] = React.useState(1)
 
@@ -185,12 +186,18 @@ function App() {
 
   React.useEffect(() => {
     const observer = new ResizeObserver(() => {
-      const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
-      const heightRate = (containerRef.current.offsetHeight - 135) / contentRef.current.offsetHeight
+      const event = () => {
+        const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
+        const heightRate = (containerRef.current.offsetHeight - 135) / contentRef.current.offsetHeight
 
-      const rate = Math.min(widthRate, heightRate, 1)
+        const rate = Math.min(widthRate, heightRate, 1)
 
-      setScale(rate)
+        setScale(rate)
+      }
+
+      clearTimeout(timeoutRef.current)
+
+      timeoutRef.current = setTimeout(event, 100)
     })
 
     observer.observe(containerRef.current)
@@ -217,4 +224,4 @@ function App() {
   </Animation>
 }
 
-export default App
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

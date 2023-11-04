@@ -50,4 +50,4 @@ function App() {
   </Dialog>
 }
 
-export default App
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

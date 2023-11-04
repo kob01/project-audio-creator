@@ -70,4 +70,4 @@ function App() {
   return <canvas style={{ position: 'absolute', zIndex: -1, top: 0, left: 0, width: '100%', height: '100%' }} width={canvasRef.current ? canvasRef.current.offsetWidth : 0} height={canvasRef.current ? canvasRef.current.offsetHeight : 0} ref={el => canvasRef.current = el}></canvas>
 }
 
-export default Imitation.withBindRender(App, state => [state.canvasAnimation])
+export default Imitation.withBindRender(App, state => [state.canvasAnimation, JSON.stringify(state.theme)])

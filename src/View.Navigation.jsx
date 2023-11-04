@@ -50,4 +50,4 @@ function App() {
   </>
 }
 
-export default App
+export default Imitation.withBindRender(App, state => [state.navigationDrawer, JSON.stringify(state.globalSetting)])
