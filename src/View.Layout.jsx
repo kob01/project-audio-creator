@@ -18,16 +18,24 @@ import Imitation from './utils.imitation'
 function App() {
 
   React.useEffect(() => {
-    const event = () => {
+    const resize = () => {
       if (window.ontouchstart !== undefined) return
       if (window.innerWidth < 2000 || window.innerHeight < 1000) Imitation.assignState({ message: `suggest 'ctrl -' to zoom out screen` })
     }
 
-    event()
+    const touchmove = e => {
+      e.preventDefault()
+    }
 
-    window.addEventListener('resize', event)
+    resize()
 
-    return () => window.removeEventListener('resize', event)
+    window.addEventListener('resize', resize)
+    window.addEventListener('touchmove', touchmove, { passive: false })
+
+    return () => {
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('touchmove', touchmove)
+    } 
   }, [])
 
   return <ThemeProvider theme={createTheme(Imitation.state.theme)}>
