@@ -10,6 +10,8 @@ function App() {
   const viewRef = React.useRef([])
 
   const loop = () => {
+    if (Imitation.state.useCanvasAnimation === false) return
+
     requestAnimationFrame(() => {
       const context = canvasRef.current.getContext('2d')
 
@@ -39,8 +41,10 @@ function App() {
   }
 
   React.useEffect(() => {
-    loop()
-  }, [])
+    if (Imitation.state.useCanvasAnimation === true) {
+      loop()
+    }
+  }, [Imitation.state.useCanvasAnimation])
 
   // React.useEffect(() => {
   //   fetch(`https://picsum.photos/800/800`)
@@ -53,7 +57,7 @@ function App() {
   // }, [])
 
   React.useEffect(() => {
-    if (Imitation.state.canvasAnimation === 0) return
+    if (Imitation.state.canvasAnimation === 0 || Imitation.state.useCanvasAnimation === false) return
 
     const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 

@@ -17,9 +17,11 @@ ImitationINS.state = {
 
   message: '',
 
+  useCanvasAnimation: true,
+
   canvasAnimation: 0,
 
-  navigationDrawer: false,
+  navigationDrawerExpand: false,
 
   dragTarget: null,
 
@@ -29,7 +31,7 @@ ImitationINS.state = {
 
   globalSetting: { volume: 1, scale: 1 },
 
-  consoleExpand: true,
+  consoleExpand: false,
 
   console: [],
 

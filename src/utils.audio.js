@@ -51,6 +51,23 @@ const loadAudioBuffer = async (source) => {
   return source
 }
 
+const parseAudioBuffer = async (source) => {
+  const audioContext = new AudioContext_()
+
+  const gain = audioContext.createGain()
+  const bufferSource = audioContext.createBufferSource()
+
+  gain.gain.value = source.volume * Imitation.state.globalSetting.volume
+
+  bufferSource.buffer = source.audioBuffer
+  bufferSource.loop = false
+  bufferSource.playbackRate.value = source.rate
+
+  bufferSource.connect(gain).connect(audioContext.destination)
+
+  return bufferSource
+}
+
 const playAudioBuffer = async (source) => {
   const audioContext = new AudioContext_()
 
@@ -91,4 +108,4 @@ const analyseAudioBuffer = async (source) => {
   return dataArray
 }
 
-export { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer }
+export { loadAudioBuffer, parseAudioBuffer, playAudioBuffer, analyseAudioBuffer }

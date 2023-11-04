@@ -10,12 +10,13 @@ import Slider from '@mui/material/Slider'
 import TextField from '@mui/material/TextField'
 
 import SaveIcon from '@mui/icons-material/Save'
+import ImageIcon from '@mui/icons-material/Image'
 
 import Imitation from './utils.imitation'
 import { TextFieldSX } from './utils.mui.sx'
 
 function App() {
-  const [value, setValue] = React.useState({ globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme })
+  const [value, setValue] = React.useState({ globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme, useCanvasAnimation: Imitation.state.useCanvasAnimation })
 
   const onClose = () => Imitation.assignState({ dialogGlobalSetting: null })
 
@@ -42,10 +43,14 @@ function App() {
           <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Theme Color' value={value.theme.palette.primary.main} onChange={(e, v) => { value.theme.palette.primary.main = e.target.value; setValue({ ...value }) }} type='color' />
         </Grid>
 
+        <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
+          <Button style={{ margin: '0 8px' }} variant='contained' color={value.useCanvasAnimation ? 'primary' : 'inherit'} onClick={(e) => {value.useCanvasAnimation = !value.useCanvasAnimation; setValue({ ...value }) }}><ImageIcon style={{ marginRight: 4 }} />Canvas Animation</Button>
+        </Grid>
+
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme }); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme, useCanvasAnimation: value.useCanvasAnimation }); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }

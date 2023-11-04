@@ -54,6 +54,10 @@ function Console() {
 
   const drag = { onDragOver, onDrop }
 
+  const consoleAdd = () => Imitation.setState(pre => { pre.console.push({ name: hash(6), group: [] }); return pre })
+
+  const consoleDelete = () => Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
+
   const maxTime = Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? Math.max(...Imitation.state.consoleCurrent.group.map((i) => i.when + i.duration / i.rate)) : 0
 
   React.useEffect(() => {
@@ -67,10 +71,10 @@ function Console() {
     <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       <Button fullWidth variant='contained'><PlayArrowIcon /></Button>
       <Button style={{ marginTop: 4 }} fullWidth variant='contained'><PauseIcon /></Button>
-      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => Imitation.setState(pre => { pre.console.push({ id: hash(6), name: hash(6), group: [] }); return pre })}><PlaylistAddIcon /></Button>
+      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => consoleAdd()}><PlaylistAddIcon /></Button>
       {
         Imitation.state.consoleCurrent ?
-          <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })}><DeleteIcon /></Button>
+          <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ marginTop: 4, transition: '0.5s all' }} fullWidth variant='contained' color='error' onClick={() => consoleDelete()}><DeleteIcon /></Animation>
           : null
       }
     </div>
@@ -80,7 +84,7 @@ function Console() {
     <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
       {
         Imitation.state.console.map((i, index) => {
-          return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={i.id} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = i; return pre })}>{i.name}</Animation>
+          return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = i; return pre })}>{i.name}</Animation>
         })
       }
     </div>
@@ -111,17 +115,20 @@ function Console() {
             }
           </div>
 
-          <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
-            {
-              new Array(11).fill().map((i, index) => {
-                return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
-                  <div style={{ whiteSpace: 'nowrap' }}>
-                    {maxTime ? Number(index * maxTime / 10).toFixed(2) : 0}
-                  </div>
-                </div>
-              })
-            }
-          </div>
+          {
+            maxTime ?
+              <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
+                {
+                  new Array(11).fill().map((i, index) => {
+                    return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
+                      <div style={{ whiteSpace: 'nowrap' }}>{Number(index * maxTime / 10).toFixed(2)}</div>
+                    </Animation>
+                  })
+                }
+              </div>
+              : null
+          }
+
         </div>
 
 
