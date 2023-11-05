@@ -67,4 +67,4 @@ function App() {
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, Imitation.state.useCanvasAnimation, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.useCanvasAnimation, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

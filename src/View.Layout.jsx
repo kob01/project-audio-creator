@@ -40,20 +40,14 @@ function App() {
       <Drag />
       <Dialog />
 
-      <div style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden' }}>
+      <div style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
 
         <Navigation />
 
-        <div style={{ position: 'absolute', width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ height: 0, flexGrow: 1, position: 'relative' }}>
-            <Page />
-          </div>
+        <div style={{ height: 0, flexGrow: 1, position: 'relative' }}><Page /></div>
 
-          <div style={{ height: 'fit-content' }}>
-            <PageConsole />
-          </div>
-        </div>
-
+        <div style={{ height: 'fit-content' }}><PageConsole /></div>
+        
       </div>
 
     </HashRouter>

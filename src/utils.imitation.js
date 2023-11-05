@@ -31,9 +31,9 @@ ImitationINS.state = {
 
   globalSetting: { volume: 0, scale: 1 },
 
-  consoleExpand: false,
-
   console: [],
+
+  consoleExpand: false,
 
   consoleCurrent: null,
 

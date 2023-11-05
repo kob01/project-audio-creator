@@ -258,4 +258,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, state.consoleCurrent, JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

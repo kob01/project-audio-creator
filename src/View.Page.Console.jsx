@@ -146,7 +146,7 @@ function App() {
         <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
-            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: source ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
@@ -206,4 +206,4 @@ function App() {
   </div>
 }
 
-export default Imitation.withBindRender(App, state => [state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audioSetting), JSON.stringify(state.audio), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])
