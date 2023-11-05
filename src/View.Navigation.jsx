@@ -20,33 +20,47 @@ function App() {
   const download = () => {
     const data = JSON.stringify({ audioSetting: Imitation.state.audioSetting, console: Imitation.state.console })
 
-    const blob = new Blob([data], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
+    localStorage.setItem('data', data)
 
-    const link = document.createElement('a')
-    link.href = url
-    link.download = 'library.json'
-    link.click()
+    // const blob = new Blob([data], { type: 'application/json' })
+    // const url = URL.createObjectURL(blob)
 
-    URL.revokeObjectURL(url)
+    // const link = document.createElement('a')
+    // link.href = url
+    // link.download = 'library.json'
+    // link.click()
+
+    // URL.revokeObjectURL(url)
   }
 
   const upload = (e) => {
-    const file = e.target.files[0]
+    const data = JSON.parse(localStorage.getItem('data'))
 
-    const reader = new FileReader()
+    Imitation.state.audioSetting = data.audioSetting
+    Imitation.state.console = data.console
+    Imitation.state.consoleExpand = true
+    Imitation.state.navigationDrawerExpand = false
+    Imitation.state.message = 'Loaded'
 
-    reader.onload = (e) => {
-      const data = JSON.parse(e.target.result)
+    Imitation.dispatch()
 
-      Imitation.state.audioSetting = data.audioSetting
-      Imitation.state.console = data.console
-      Imitation.state.message = 'Loaded'
+    // const file = e.target.files[0]
 
-      Imitation.dispatch()
-    }
+    // const reader = new FileReader()
 
-    reader.readAsText(file)
+    // reader.onload = (e) => {
+    //   const data = JSON.parse(e.target.result)
+
+    //   Imitation.state.audioSetting = data.audioSetting
+    //   Imitation.state.console = data.console
+    //   Imitation.state.consoleExpand = true
+    //   Imitation.state.navigationDrawerExpand = false
+    //   Imitation.state.message = 'Loaded'
+
+    //   Imitation.dispatch()
+    // }
+
+    // reader.readAsText(file)
   }
 
   return <>
@@ -68,11 +82,12 @@ function App() {
         </div>
 
         <div>
-          <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => download()}><SettingsIcon style={{ marginRight: 4 }} />Data Download</Button>
-          <label>
+          <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => download()}><SettingsIcon style={{ marginRight: 4 }} />Data Save</Button>
+          <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => upload()}><SettingsIcon style={{ marginRight: 4 }} />Data Load</Button>
+          {/* <label>
             <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' component='div'><SettingsIcon style={{ marginRight: 4 }} />Data Upload</Button>
             <input type='file' style={{ display: 'none' }} onChange={(e) => upload(e)}></input>
-          </label>
+          </label> */}
           <Button style={{ marginTop: 4, justifyContent: 'start' }} fullWidth variant='outlined' onClick={() => Imitation.assignState({ dialogGlobalSetting: true })}><SettingsIcon style={{ marginRight: 4 }} />Global Setting</Button>
         </div>
       </div>

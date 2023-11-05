@@ -18,11 +18,17 @@ import { TextFieldSX } from './utils.mui.sx'
 function App() {
   const [value, setValue] = React.useState()
 
-  React.useEffect(() => {
-    setValue({ globalSetting: JSON.parse(JSON.stringify(Imitation.state.globalSetting)), theme: JSON.parse(JSON.stringify(Imitation.state.theme)), useCanvasAnimation: JSON.parse(JSON.stringify(Imitation.state.useCanvasAnimation)) })
-  }, [Imitation.state.dialogGlobalSetting])
+  const onClose = () => {
+    Imitation.assignState({ dialogGlobalSetting: null })
+  }
 
-  const onClose = () => Imitation.assignState({ dialogGlobalSetting: null })
+  React.useEffect(() => {
+    var r = { globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme, useCanvasAnimation: Imitation.state.useCanvasAnimation }
+
+    r = JSON.parse(JSON.stringify(r))
+
+    setValue(r)
+  }, [Imitation.state.globalSetting, Imitation.state.theme, Imitation.state.useCanvasAnimation])
 
   if (value === undefined) return null
 
@@ -61,4 +67,4 @@ function App() {
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, Imitation.state.useCanvasAnimation, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

@@ -21,60 +21,12 @@ import Imitation from './utils.imitation'
 import { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
-function AnalyseSource(props) {
-
-}
-
-function ControlCode(props) {
-  const [codePress, setCodePress] = React.useState([])
-  const [codePressRecord, setCodePressRecord] = React.useState([])
-  const [codePressCallback, setCodePressCallback] = React.useState()
-
-  const reset = () => {
-    setCodePress([])
-    setCodePressRecord([])
-    setCodePressCallback()
-  }
-
-  React.useEffect(() => {
-    if (codePressCallback === undefined) return
-
-    const keydown = (e) => {
-      const result = codePress.includes(e.code) ? codePress : [...codePress, e.code]
-      setCodePress(result)
-
-      const record = codePressRecord.includes(e.code) ? codePressRecord : [...codePressRecord, e.code]
-      setCodePressRecord(record)
-      codePressCallback.callback(record)
-    }
-
-    const keyup = (e) => {
-      const result = codePress.filter(i => !i.includes(e.code))
-      setCodePress(result)
-
-      if (result.length === 0) reset()
-    }
-
-    const click = (e) => reset()
-
-    window.addEventListener('keydown', keydown)
-    window.addEventListener('keyup', keyup)
-    window.addEventListener('click', click)
-
-    return () => {
-      window.removeEventListener('keydown', keydown)
-      window.removeEventListener('keyup', keyup)
-      window.removeEventListener('click', click)
-    }
-  }, [codePress, codePressRecord, codePressCallback])
-
-  return props.children(codePressCallback, setCodePressCallback)
-}
-
 function App() {
   const [source, setSource] = React.useState()
 
-  const onClose = () => Imitation.assignState({ dialogConsoleAudioSetting: null })
+  const onClose = () => {
+    Imitation.assignState({ dialogConsoleAudioSetting: null })
+  }
 
   const onSave = () => {
     const target = {}

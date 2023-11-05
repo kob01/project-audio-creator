@@ -21,10 +21,6 @@ import Imitation from './utils.imitation'
 import { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
-function AnalyseSource(props) {
-
-}
-
 function ControlCode(props) {
   const [codePress, setCodePress] = React.useState([])
   const [codePressRecord, setCodePressRecord] = React.useState([])
@@ -74,7 +70,9 @@ function ControlCode(props) {
 function App() {
   const [source, setSource] = React.useState()
 
-  const onClose = () => Imitation.assignState({ dialogAudioSetting: null })
+  const onClose = () => {
+    Imitation.assignState({ dialogAudioSetting: null })
+  }
 
   const onSave = () => {
     const target = {}

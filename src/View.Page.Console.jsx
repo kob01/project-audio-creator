@@ -18,10 +18,6 @@ import { TextFieldSX } from './utils.mui.sx'
 import Animation from './View.Component.Animation'
 
 function ConsoleSource(props) {
-  const onClick = () => {
-    Imitation.assignState({ dialogConsoleAudioSetting: props.source })
-  }
-
   const style = React.useMemo(() => {
     const r = {
       width: props.width,
@@ -37,27 +33,80 @@ function ConsoleSource(props) {
     return r
   }, [props.source.use, props.width, props.height, props.left, props.top])
 
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: props.source.use ? 1 : 0.35 }]} variant='outlined' style={style} onClick={onClick}>{props.name}</Animation>
+  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: props.source.use ? 1 : 0.35 }]} variant='outlined' style={style} onClick={props.onClick}>{props.name}</Animation>
 }
 
 function App() {
-  const expand = () => Imitation.setState(pre => { pre.consoleExpand = !pre.consoleExpand; return pre })
+  const startTime = React.useRef()
+  const audioBufferSourceRef = React.useRef()
 
-  const consoleAdd = () => Imitation.setState(pre => { pre.console.push({ name: hash(6), group: [] }); return pre })
+  const [currentTime, setCurrentTime] = React.useState()
+  const [source, setSource] = React.useState()
+  const [height, setHeight] = React.useState()
+  const [maxTime, setMaxTime] = React.useState()
+  const [nameMap, setNameMap] = React.useState()
 
-  const consoleDelete = () => Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
+  const play = () => {}
 
-  const fullscreen = () => Imitation.setState(pre => { pre.consoleFullScreen = !pre.consoleFullScreen; return pre })
+  const pause = () => {}
 
-  const maxTime = Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? Math.max(...Imitation.state.consoleCurrent.group.map((i) => i.when + i.duration / i.rate)) : 0
+  const expand = () => {
+    Imitation.setState(pre => { pre.consoleExpand = !pre.consoleExpand; return pre })
+  }
 
-  const height = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
+  const add = () => {
+    Imitation.setState(pre => { pre.console.push({ name: hash(6), group: [] }); return pre })
+  }
+
+  const remove = () => {
+    Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
+  }
+
+  const fullscreen = () => {
+    Imitation.setState(pre => { pre.consoleFullScreen = !pre.consoleFullScreen; return pre })
+  }
+
+  const sourceClick = (source) => {
+    Imitation.assignState({ dialogConsoleAudioSetting: source })
+  }
 
   React.useEffect(() => {
-    if (Imitation.state.console.length > 0 && Imitation.state.consoleCurrent === null) {
-      Imitation.setState(pre => { pre.consoleCurrent = pre.console[0]; return pre })
-    }
-  }, [JSON.stringify(Imitation.state.console)])
+    const r = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
+
+    setHeight(r)
+  }, [Imitation.state.consoleFullScreen])
+
+  React.useEffect(() => {
+    var group = []
+
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
+    if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
+
+    const r = group.length > 0 ? Math.max(...group.map((i) => i.when + i.duration / i.rate)) : 0
+
+    setMaxTime(r)
+  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
+
+  React.useEffect(() => {
+    var group = []
+
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
+    if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
+
+    setSource(group)
+  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
+
+  React.useEffect(() => {
+    const r = {}
+
+    Imitation.state.audio.map((i) => {
+      const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
+
+      r[i.id] = audioSetting ? audioSetting.name : i.name
+    })
+
+    setNameMap(r)
+  }, [JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
@@ -67,10 +116,10 @@ function App() {
         <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
           <Button fullWidth variant='contained'><PlayArrowIcon /></Button>
           <Button style={{ marginTop: 4 }} fullWidth variant='contained'><PauseIcon /></Button>
-          <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => consoleAdd()}><PlaylistAddIcon /></Button>
+          <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => add()}><PlaylistAddIcon /></Button>
           {
             Imitation.state.consoleCurrent ?
-              <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ marginTop: 4, transition: '0.5s all' }} fullWidth variant='contained' color='error' onClick={() => consoleDelete()}><DeleteIcon /></Animation>
+              <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ marginTop: 4, transition: '0.5s all' }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Animation>
               : null
           }
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => fullscreen()}><FullscreenIcon /></Button>
@@ -78,22 +127,26 @@ function App() {
 
         <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' />
 
-        <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-          {
-            Imitation.state.console.map((i, index) => {
-              return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = i; return pre })}>{i.name}</Animation>
-            })
-          }
-        </div>
-
         {
-          Imitation.state.console.length > 0 ? <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' /> : null
+          Imitation.state.console.length > 0 ?
+            <>
+              <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
+                {
+                  Imitation.state.console.map((i, index) => {
+                    return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent === i ? null : i; return pre })}>{i.name}</Animation>
+                  })
+                }
+              </div>
+
+              <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' />
+            </>
+            : null
         }
 
         <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
-            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.consoleCurrent && Imitation.state.consoleCurrent.group.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: source ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
@@ -128,28 +181,16 @@ function App() {
 
             </div>
 
-
             {
-              Imitation.state.consoleCurrent ?
+              source ?
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
-                    Imitation.state.consoleCurrent.group.map((i, index) => {
-                      var name = undefined
-
-                      if (name === undefined) {
-                        const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
-                        if (audioSetting) name = audioSetting.name
-                      }
-                      if (name === undefined) {
-                        const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
-                        if (audio) name = audio.name
-                      }
-
-                      return <ConsoleSource key={index} source={i} name={name} width={`${i.duration / i.rate / maxTime * 100}%`} height={40} top={index * 48} left={`${i.when / maxTime * 100}%`} />
+                    source.map((i, index) => {
+                      return <ConsoleSource key={index} source={i} name={nameMap[i.id]} width={`${i.duration / i.rate / maxTime * 100}%`} height={40} top={index * 48} left={`${i.when / maxTime * 100}%`} onClick={() => sourceClick(i)} />
                     })
                   }
 
-                  <div style={{ width: '100%', height: 16, position: 'absolute', top: Imitation.state.consoleCurrent.group.length * 48 }}></div>
+                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 48 }}></div>
                 </div>
                 : null
             }

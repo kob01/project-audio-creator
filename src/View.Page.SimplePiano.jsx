@@ -178,10 +178,14 @@ function App() {
   const timeoutRef = React.useRef()
 
   const [scale, setScale] = React.useState(1)
-
+  const [consoleFullScreen, setConsoleFullScreen] = React.useState(Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true)
   const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'SimplePiano'))
 
-  const consoleFullScreen = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
+  React.useEffect(() => {
+    const r = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
+
+    setConsoleFullScreen(r)
+  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
 
   React.useEffect(async () => {
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
@@ -197,7 +201,6 @@ function App() {
         const current = audio[process.index]
 
         if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
-
         if (current === undefined) process.done = true
 
         process.index = process.index + 1
@@ -234,7 +237,7 @@ function App() {
     observer.observe(containerRef.current)
 
     return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
-  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
+  }, [consoleFullScreen])
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
 
