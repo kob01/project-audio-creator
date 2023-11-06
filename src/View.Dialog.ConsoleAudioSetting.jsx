@@ -13,12 +13,11 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import RestoreIcon from '@mui/icons-material/Restore'
 import SaveIcon from '@mui/icons-material/Save'
 import SendIcon from '@mui/icons-material/Send'
-import SettingsIcon from '@mui/icons-material/Settings'
 import DeleteIcon from '@mui/icons-material/Delete'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer } from './utils.audio'
+import { loadAudioBuffer, playAudioContext, analyseAudioContext } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
 function App() {
@@ -35,52 +34,49 @@ function App() {
 
     keys.forEach(i => target[i] = source[i])
 
-    Object.assign(Imitation.state.dialogConsoleAudioSetting, target)
+    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash)
+
+    Object.assign(console, target)
 
     Imitation.dispatch()
   }
 
   const onDelete = () => {
-    var consoleCurrent
+    const console = Imitation.state.console.find(i => i.group.find(i_ => i_.hash === Imitation.state.dialogConsoleAudioSetting.hash))
 
-    if (Imitation.state.consoleCurrent === null) {
-      consoleCurrent = Imitation.state.console.find(i => i.group.find(i_ => i_ === Imitation.state.dialogConsoleAudioSetting))
-    }
-    if (Imitation.state.consoleCurrent !== null) {
-      consoleCurrent = Imitation.state.consoleCurrent
-    }
+    console.group = console.group.filter(i => i.hash !== Imitation.state.dialogConsoleAudioSetting.hash)
 
-    Imitation.setState(pre => { consoleCurrent.group = consoleCurrent.group.filter(i => i !== pre.dialogConsoleAudioSetting); return pre; })
+    Imitation.dispatch()
   }
 
-  const play = async (source) => {
-    const audioBuffer = await loadAudioBuffer(source)
-
-    playAudioBuffer(audioBuffer)
+  const play = () => {
+    playAudioContext(source)
   }
 
-  const reset = async (source) => {
-    setSource({ ...source, ...Imitation.state.dialogConsoleAudioSetting })
+  const reset = () => {
+    setSource({ ...source, ...Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash) })
   }
 
   const init = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
+    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash)
+
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogConsoleAudioSetting.id)))
 
-    const source = await loadAudioBuffer({ ...audio, ...Imitation.state.dialogConsoleAudioSetting })
+    const source = await loadAudioBuffer(audio)
+
+    Object.assign(source, console)
 
     setSource(source)
 
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }
 
-  React.useEffect(async () => {
-
+  React.useEffect(() => {
     if (Imitation.state.dialogConsoleAudioSetting !== null) {
       init()
     }
-
   }, [Imitation.state.dialogConsoleAudioSetting])
 
   if (source === undefined) return null
@@ -135,8 +131,8 @@ function App() {
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
           <Button style={{ margin: '0 8px' }} variant='contained' color={source.use ? 'primary' : 'inherit'} onClick={(e) => { setSource({ ...source, use: !source.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
-          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => play(source)}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
-          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset(source)}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => play()}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset()}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
         </Grid>
 
       </Grid>
@@ -148,4 +144,4 @@ function App() {
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogConsoleAudioSetting, JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio)])
+export default Imitation.withBindRender(App, state => [state.dialogConsoleAudioSetting, JSON.stringify(state.console), JSON.stringify(state.audio)])

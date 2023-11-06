@@ -21,13 +21,18 @@ function App() {
   }
 
   const onSave = () => {
-    Imitation.setState(pre => { pre.consoleCurrent.name = value; return pre; })
+    const console = Imitation.state.console.find(i => i.hash === Imitation.state.dialogConsoleRename.hash)
+
+    Object.assign(console, value)
+
+    Imitation.dispatch()
   }
 
   React.useEffect(() => {
     if (Imitation.state.dialogConsoleRename !== null) {
-      const r = Imitation.state.consoleCurrent.name
-      setValue(r)
+      const console = Imitation.state.console.find(i => i.hash === Imitation.state.dialogConsoleRename.hash)
+
+      setValue(console)
     }
   }, [Imitation.state.dialogConsoleRename])
 
@@ -39,7 +44,7 @@ function App() {
       <Grid container spacing={1}>
 
         <Grid item xs={12}>
-          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Theme Color' value={value} onChange={(e, v) => { setValue(e.target.value) }} />
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Theme Color' value={value.name} onChange={(e, v) => { setValue({ ...value, name: e.target.value }) }} />
         </Grid>
 
       </Grid>

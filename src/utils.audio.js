@@ -19,39 +19,45 @@ const loadAudioBuffer = async (source) => {
         reader.readAsArrayBuffer(blob)
       })
 
+      const arrayBuffer_ = await new Promise(r => {
+        const reader = new FileReader()
+        reader.onload = (event) => r(event.target.result)
+        reader.readAsArrayBuffer(blob)
+      })
+
       const audioBuffer = await new Promise(async r => {
         const audioContext = new AudioContext_()
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer_)
         r(audioBuffer)
         audioContext.close()
       })
 
       source.dataUrl = dataUrl
 
+      source.arrayBuffer = arrayBuffer
+
       source.audioBuffer = audioBuffer
 
-      r()
+      r(source)
     })
   }
+
+  var r
 
   if (Array.isArray(source) === true) {
     const promise = source.map(i => parse(i))
 
-    await Promise.all(promise)
+    r = await Promise.all(promise)
   }
 
   if (Array.isArray(source) === false) {
-    await parse(source)
+    r = await parse(source)
   }
 
-  // source.forEach(i => {
-  //   if (i.duration !== i.audioBuffer.duration) console.log(i.name)
-  // })
-
-  return source
+  return r
 }
 
-const parseAudioBuffer = async (source) => {
+const parseAudioContext = (source) => {
   const audioContext = new AudioContext_()
 
   const gain = audioContext.createGain()
@@ -65,10 +71,10 @@ const parseAudioBuffer = async (source) => {
 
   bufferSource.connect(gain).connect(audioContext.destination)
 
-  return bufferSource
+  return { audioContext, bufferSource, gain }
 }
 
-const playAudioBuffer = async (source) => {
+const playAudioContext = (source) => {
   const audioContext = new AudioContext_()
 
   const gain = audioContext.createGain()
@@ -87,7 +93,7 @@ const playAudioBuffer = async (source) => {
   bufferSource.addEventListener('ended', () => audioContext.close())
 }
 
-const analyseAudioBuffer = async (source) => {
+const analyseAudioContext = (source) => {
   const audioContext = new AudioContext_()
 
   const bufferSource = audioContext.createBufferSource()
@@ -108,4 +114,4 @@ const analyseAudioBuffer = async (source) => {
   return dataArray
 }
 
-export { loadAudioBuffer, parseAudioBuffer, playAudioBuffer, analyseAudioBuffer }
+export { loadAudioBuffer, parseAudioContext, playAudioContext, analyseAudioContext }

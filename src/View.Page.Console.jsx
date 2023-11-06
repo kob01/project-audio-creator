@@ -11,9 +11,11 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import EditIcon from '@mui/icons-material/Edit'
+import FolderZipIcon from '@mui/icons-material/FolderZip'
 
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
+import { loadAudioBuffer, parseAudioContext } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
@@ -118,48 +120,132 @@ function ControlSource(props) {
         window.removeEventListener('touchend', onTouchEnd)
       }
     }
-  }, [])
+  }, [props.onMove])
 
   return props.children(event)
 }
 
-
 function App() {
-  const startTime = React.useRef()
-  const audioBufferSourceRef = React.useRef()
+  const audioContextRef = React.useRef()
 
-  const [currentTime, setCurrentTime] = React.useState()
+  const [playing, setPlaying] = React.useState()
+  const [buffer, setBuffer] = React.useState()
   const [source, setSource] = React.useState()
-  const [sourceNameMap, setSourceNameMap] = React.useState()
   const [height, setHeight] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
 
-  const play = () => { }
+  const load = async () => {
+    Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-  const pause = () => { }
+    const source_ = JSON.parse(JSON.stringify(source))
+
+    source_.forEach(i => Object.assign(i, { ...Imitation.state.audio.find(i_ => i_.id === i.id), ...i }))
+
+    const r = await loadAudioBuffer(source_)
+
+    setBuffer(r)
+
+    Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
+  }
+
+  const play = () => {
+    if (audioContextRef.current !== undefined) {
+      audioContextRef.current.forEach(i => {
+        i.bufferSource.stop()
+        i.audioContext.close()
+      })
+
+      audioContextRef.current = undefined
+    }
+
+    const context = buffer.map(i => ({ source: i, ...parseAudioContext(i) }))
+
+    audioContextRef.current = context
+
+    var maxLength = context.length
+
+    var currentLength = 0
+
+    audioContextRef.current.forEach(i => {
+      const ended = () => {
+        i.audioContext.close()
+
+        audioContextRef.current = audioContextRef.current.filter(i_ => i_ !== i)
+
+        currentLength = currentLength + 1
+
+        if (currentLength === maxLength) {
+          audioContextRef.current = undefined
+
+          setPlaying()
+        }
+      }
+
+      i.bufferSource.addEventListener('ended', ended)
+
+      const when = i.source.when
+      const offset = i.source.offset
+      const duration = i.source.duration
+
+      i.bufferSource.start(when, offset, duration)
+    })
+
+    setPlaying(true)
+  }
+
+  const pause = () => {
+    if (audioContextRef.current !== undefined) {
+      audioContextRef.current.forEach(i => {
+        i.bufferSource.stop()
+        i.audioContext.close()
+      })
+
+      audioContextRef.current = undefined
+    }
+
+    setPlaying()
+  }
+
+  const clean = () => {
+    if (audioContextRef.current !== undefined) {
+      audioContextRef.current.forEach(i => {
+        i.bufferSource.stop()
+        i.audioContext.close()
+      })
+
+      audioContextRef.current = undefined
+    }
+
+    setPlaying()
+    setBuffer()
+  }
+
+  const add = () => {
+    Imitation.setState(pre => { pre.console.push({ hash: hash(6), name: hash(6), group: [] }); return pre })
+  }
+
+  const remove = () => {
+    Imitation.setState(pre => { pre.console = pre.console.filter(i => i.hash !== pre.consoleCurrent.hash); pre.consoleCurrent = null; return pre })
+  }
+
+  const rename = () => {
+    Imitation.setState(pre => { pre.dialogConsoleRename = Imitation.state.consoleCurrent; return pre })
+  }
+
+  const move = (changeX, changeY, source) => {
+    const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
+
+    current.when = Math.max(current.when + changeX * maxTime * 0.001, 0)
+
+    Imitation.dispatch()
+  }
 
   const expand = () => {
     Imitation.setState(pre => { pre.consoleExpand = !pre.consoleExpand; return pre })
   }
 
-  const add = () => {
-    Imitation.setState(pre => { pre.console.push({ name: hash(6), group: [] }); return pre })
-  }
-
-  const remove = () => {
-    Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
-  }
-
-  const rename = () => {
-    Imitation.setState(pre => { pre.dialogConsoleRename = true; return pre })
-  }
-
   const fullscreen = () => {
     Imitation.setState(pre => { pre.consoleFullScreen = !pre.consoleFullScreen; return pre })
-  }
-
-  const sourceClick = (source) => {
-    Imitation.assignState({ dialogConsoleAudioSetting: source })
   }
 
   React.useEffect(() => {
@@ -179,36 +265,41 @@ function App() {
   }, [Imitation.state.consoleFullScreen])
 
   React.useEffect(() => {
-    var group = []
+    if (Imitation.state.consoleExpand === true) {
+      clean()
+    }
+  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), Imitation.state.consoleExpand])
 
-    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
-    if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
+  React.useEffect(() => {
+    var source = []
 
-    const r = group.length > 0 ? Math.max(...group.map((i) => i.when + i.duration / i.rate)) : 0
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => source.push(...i.group))
+    if (Imitation.state.consoleCurrent !== null) source = Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group
+
+    const r = source.length > 0 ? Math.max(...source.map((i) => i.when + i.duration / i.rate)) : 0
 
     setMaxTime(r)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
 
   React.useEffect(() => {
-    var group = []
+    var r = []
 
-    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
-    if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => r.push(...i.group))
+    if (Imitation.state.consoleCurrent !== null) r = Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group
 
-    setSource(group)
-  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
-
-  React.useEffect(() => {
-    const r = {}
-
-    Imitation.state.audio.forEach((i) => {
-      const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
-
-      r[i.id] = audioSetting ? audioSetting.name : i.name
+    r.forEach(i => {
+      if (i.name === undefined) {
+        const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
+        if (audioSetting) i.name = audioSetting.name
+      }
+      if (i.name === undefined) {
+        const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
+        if (audio) i.name = audio.name
+      }
     })
 
-    setSourceNameMap(r)
-  }, [JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
+    setSource(r)
+  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
@@ -216,8 +307,15 @@ function App() {
       <div style={{ position: 'absolute', width: '100%', height: height, bottom: 0, left: 0, display: 'flex', padding: 16, background: '#ffffff', transition: '0.5s all' }} ref={el => Imitation.state.consoleContainerRef = el}>
 
         <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-          <Button style={{ marginTop: 0 }} fullWidth variant='contained'><PlayArrowIcon /></Button>
-          <Button style={{ marginTop: 4 }} fullWidth variant='contained'><PauseIcon /></Button>
+          {
+            !buffer ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
+          }
+          {
+            buffer && playing ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => pause()}><PauseIcon /></Button> : null
+          }
+          {
+            buffer && !playing ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => play()}><PlayArrowIcon /></Button> : null
+          }
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => add()}><PlaylistAddIcon /></Button>
           {
             Imitation.state.consoleCurrent ?
@@ -238,7 +336,7 @@ function App() {
               <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
                 {
                   Imitation.state.console.map((i, index) => {
-                    return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent === i ? null : i; return pre })}>{i.name}</Animation>
+                    return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={i.hash} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
                   })
                 }
               </div>
@@ -283,21 +381,6 @@ function App() {
                   </div>
                   : null
               }
-
-              {
-                currentTime ?
-                  <div style={{ width: 2, height: '100%', position: 'absolute', left: `${currentTime / maxTime - 1}%` }}>
-                    {
-                      new Array(11).fill().map((i, index) => {
-                        return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
-                          <div style={{ whiteSpace: 'nowrap' }}>{Number(index * maxTime / 10).toFixed(2)}</div>
-                        </Animation>
-                      })
-                    }
-                  </div>
-                  : null
-              }
-
             </div>
 
             {
@@ -305,10 +388,10 @@ function App() {
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
                     source.map((i, index) => {
-                      return <ControlSource key={index} onClick={() => sourceClick(i)} onMove={(changeX, changeY) => { i.when = Math.max(i.when + changeX * maxTime * 0.001, 0); Imitation.dispatch() }}>
+                      return <ControlSource key={i.hash} maxTime={maxTime} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => move(changeX, changeY, i)}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, left: `${i.when / maxTime * 100}%`, top: index * 48, position: 'absolute', fontSize: 12, transition: '0.5s all' }} {...event}>{sourceNameMap[i.id]}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, left: `${i.when / maxTime * 100}%`, top: index * 48, position: 'absolute', fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
@@ -331,4 +414,4 @@ function App() {
   </div>
 }
 
-export default Imitation.withBindRender(App, state => [state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])

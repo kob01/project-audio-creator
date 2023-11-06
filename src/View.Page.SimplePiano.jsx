@@ -8,7 +8,7 @@ import Animation from './View.Component.Animation'
 import Imitation from './utils.imitation'
 
 import { requestIdleCallbackProcess } from './utils.common'
-import { loadAudioBuffer, playAudioBuffer } from './utils.audio'
+import { loadAudioBuffer, playAudioContext } from './utils.audio'
 
 function ConsoleButton(props) {
   const { id, name, use, codeInclued, codeMain, codeExclude } = props.source
@@ -24,7 +24,7 @@ function ConsoleButton(props) {
   const [codePress, setCodePress] = React.useState([])
 
   const play = () => {
-    playAudioBuffer(props.source)
+    playAudioContext(props.source)
 
     setPlayTime(true)
 
@@ -188,35 +188,6 @@ function App() {
     setConsoleFullScreen(r)
   }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
 
-  React.useEffect(async () => {
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
-
-    Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
-
-    const process = {
-      index: 0,
-
-      done: false,
-
-      next: () => {
-        const current = audio[process.index]
-
-        if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
-        if (current === undefined) process.done = true
-
-        process.index = process.index + 1
-      }
-    }
-
-    await requestIdleCallbackProcess(process)
-
-    const source = await loadAudioBuffer(audio)
-
-    setAudioSource(source)
-
-    Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
-  }, [Imitation.state.audioSetting])
-
   React.useEffect(() => {
     if (consoleFullScreen) return null
 
@@ -240,6 +211,35 @@ function App() {
     return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
   }, [consoleFullScreen])
 
+  React.useEffect(async () => {
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
+
+    Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
+
+    const process = {
+      index: 0,
+
+      done: false,
+
+      next: () => {
+        const current = audio[process.index]
+
+        if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
+        if (current === undefined) process.done = true
+
+        process.index = process.index + 1
+      }
+    }
+
+    await requestIdleCallbackProcess(process)
+
+    const audioBuffer = await loadAudioBuffer(audio)
+
+    setAudioSource(audioBuffer)
+
+    Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
+  }, [Imitation.state.audioSetting])
+
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref_={el => containerRef.current = el}>
 
     <div style={{ height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
@@ -259,4 +259,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogConsoleRename, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogConsoleRename, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

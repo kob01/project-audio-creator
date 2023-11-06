@@ -7,6 +7,7 @@ import MusicNoteIcon from '@mui/icons-material/MusicNote'
 import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
+import { hash } from './utils.common'
 
 function App() {
   const [position, setPosition] = React.useState([0, 0])
@@ -22,8 +23,8 @@ function App() {
   const onMouseUp = e => {
     if (intersection === true) {
       const dragTarget = Imitation.state.dragTarget
-      const item = { id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
-      Imitation.state.consoleCurrent.group.push(item)
+      const item = { hash: hash(), id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
+      Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group.push(item)
     }
 
     Imitation.state.dragTarget = null
@@ -39,8 +40,8 @@ function App() {
   const onTouchEnd = e => {
     if (intersection === true) {
       const dragTarget = Imitation.state.dragTarget
-      const item = { id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
-      Imitation.state.consoleCurrent.group.push(item)
+      const item = { hash: hash(), id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
+      Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group.push(item)
     }
 
     Imitation.state.dragTarget = null
@@ -101,4 +102,4 @@ function App() {
   return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: 36, height: 36, position: 'absolute', zIndex: 3, left: position[0] - 18, top: position[1] - 18, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
 }
 
-export default Imitation.withBindRender(App, state => [state.dragTarget, state.consoleExpand, state.consoleCurrent, state.consoleContainerRef])
+export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleContainerRef, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent)])

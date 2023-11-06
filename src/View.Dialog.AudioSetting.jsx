@@ -18,7 +18,7 @@ import ClearAllIcon from '@mui/icons-material/ClearAll'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioBuffer, analyseAudioBuffer } from './utils.audio'
+import { loadAudioBuffer, playAudioContext, analyseAudioContext } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
 function ControlCode(props) {
@@ -94,46 +94,34 @@ function App() {
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
   }
 
-  const play = async (source) => {
-    const audioBuffer = await loadAudioBuffer(source)
-
-    playAudioBuffer(audioBuffer)
+  const play = () => {
+    playAudioContext(source)
   }
 
-  const reset = async (source) => {
-    Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
-
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === source.id)))
-
-    const source_ = await loadAudioBuffer(audio)
-
-    setSource(source_)
-
-    Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
+  const reset = () => {
+    setSource({ ...source, ...Imitation.state.audio.find(i => i.id === source.id) })
   }
 
   const init = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const setting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.dialogAudioSetting.id)
+    const audioSetting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.dialogAudioSetting.id)
 
     const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogAudioSetting.id)))
 
     const source = await loadAudioBuffer(audio)
 
-    Object.assign(source, setting)
+    Object.assign(source, audioSetting)
 
     setSource(source)
 
     Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
   }
 
-  React.useEffect(async () => {
-
+  React.useEffect(() => {
     if (Imitation.state.dialogAudioSetting !== null) {
       init()
     }
-
   }, [Imitation.state.dialogAudioSetting])
 
   if (source === undefined) return null
@@ -238,8 +226,8 @@ function App() {
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
           <Button style={{ margin: '0 8px' }} variant='contained' color={source.use ? 'primary' : 'inherit'} onClick={(e) => { setSource({ ...source, use: !source.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
-          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => play(source)}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
-          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset(source)}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => play()}><PlayArrowIcon style={{ marginRight: 4 }} />Play</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset()}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
         </Grid>
 
       </Grid>

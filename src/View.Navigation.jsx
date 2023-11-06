@@ -22,6 +22,10 @@ function App() {
 
     localStorage.setItem('data', data)
 
+    Imitation.state.message = 'Save'
+
+    Imitation.dispatch()
+
     // const blob = new Blob([data], { type: 'application/json' })
     // const url = URL.createObjectURL(blob)
 
@@ -41,7 +45,7 @@ function App() {
     Imitation.state.consoleCurrent = null
     Imitation.state.consoleExpand = true
     Imitation.state.navigationDrawerExpand = false
-    Imitation.state.message = 'Loaded'
+    Imitation.state.message = 'Load'
 
     Imitation.dispatch()
 
