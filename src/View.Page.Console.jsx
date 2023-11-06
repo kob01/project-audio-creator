@@ -10,6 +10,7 @@ import PauseIcon from '@mui/icons-material/Pause'
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'
 import DeleteIcon from '@mui/icons-material/Delete'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import EditIcon from '@mui/icons-material/Edit'
 
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
@@ -46,9 +47,9 @@ function App() {
   const [maxTime, setMaxTime] = React.useState()
   const [nameMap, setNameMap] = React.useState()
 
-  const play = () => {}
+  const play = () => { }
 
-  const pause = () => {}
+  const pause = () => { }
 
   const expand = () => {
     Imitation.setState(pre => { pre.consoleExpand = !pre.consoleExpand; return pre })
@@ -60,6 +61,10 @@ function App() {
 
   const remove = () => {
     Imitation.setState(pre => { pre.console = pre.console.filter(i => i !== pre.consoleCurrent); pre.consoleCurrent = null; return pre })
+  }
+
+  const rename = () => {
+    Imitation.setState(pre => { pre.dialogConsoleRename = true; return pre })
   }
 
   const fullscreen = () => {
@@ -93,6 +98,8 @@ function App() {
     if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
     if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
 
+    console.log(group, Imitation.state.console, Imitation.state.consoleCurrent)
+
     setSource(group)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
 
@@ -114,12 +121,15 @@ function App() {
       <div style={{ position: 'absolute', width: '100%', height: height, bottom: 0, left: 0, display: 'flex', padding: 16, background: '#ffffff', transition: '0.5s all' }} ref={el => Imitation.state.consoleContainerRef = el}>
 
         <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-          <Button fullWidth variant='contained'><PlayArrowIcon /></Button>
+          <Button style={{ marginTop: 0 }} fullWidth variant='contained'><PlayArrowIcon /></Button>
           <Button style={{ marginTop: 4 }} fullWidth variant='contained'><PauseIcon /></Button>
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => add()}><PlaylistAddIcon /></Button>
           {
             Imitation.state.consoleCurrent ?
-              <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ marginTop: 4, transition: '0.5s all' }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Animation>
+              <>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => rename()}><EditIcon /></Button>
+              </>
               : null
           }
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => fullscreen()}><FullscreenIcon /></Button>
@@ -147,7 +157,7 @@ function App() {
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
             <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
-              <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main }}></div>
+              <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
                 {

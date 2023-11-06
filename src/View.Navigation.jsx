@@ -38,6 +38,7 @@ function App() {
 
     Imitation.state.audioSetting = data.audioSetting
     Imitation.state.console = data.console
+    Imitation.state.consoleCurrent = null
     Imitation.state.consoleExpand = true
     Imitation.state.navigationDrawerExpand = false
     Imitation.state.message = 'Loaded'

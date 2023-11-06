@@ -158,7 +158,7 @@ function ConsoleButton(props) {
   React.useEffect(() => {
     if (use === false) return
 
-    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogAudioSetting !== null || Imitation.state.dialogConsoleAudioSetting !== null) return
+    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogConsoleRename !== null || Imitation.state.dialogAudioSetting !== null || Imitation.state.dialogConsoleAudioSetting !== null) return
 
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
@@ -167,7 +167,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogConsoleRename, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
 
   return <Button variant={variant} style={style} {...event}>{name}</Button>
 }
@@ -258,4 +258,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogConsoleRename, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.dragTarget, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
