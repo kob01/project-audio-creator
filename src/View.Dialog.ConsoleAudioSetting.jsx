@@ -41,7 +41,16 @@ function App() {
   }
 
   const onDelete = () => {
-    Imitation.setState(pre => { pre.consoleCurrent.group = pre.consoleCurrent.group.filter(i => i !== pre.dialogConsoleAudioSetting); return pre; })
+    var consoleCurrent
+
+    if (Imitation.state.consoleCurrent === null) {
+      consoleCurrent = Imitation.state.console.find(i => i.group.find(i_ => i_ === Imitation.state.dialogConsoleAudioSetting))
+    }
+    if (Imitation.state.consoleCurrent !== null) {
+      consoleCurrent = Imitation.state.consoleCurrent
+    }
+
+    Imitation.setState(pre => { consoleCurrent.group = consoleCurrent.group.filter(i => i !== pre.dialogConsoleAudioSetting); return pre; })
   }
 
   const play = async (source) => {

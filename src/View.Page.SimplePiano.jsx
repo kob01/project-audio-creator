@@ -70,7 +70,7 @@ function ConsoleButton(props) {
   const onMouseUp = (e) => {
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
 
-    mouseDownRef.current = false
+    mouseDownRef.current = undefined
 
     clearInterval(mouseTimeRef.current)
   }
@@ -92,7 +92,7 @@ function ConsoleButton(props) {
   const onTouchEnd = (e) => {
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
 
-    mouseDownRef.current = false
+    mouseDownRef.current = undefined
 
     clearInterval(mouseTimeRef.current)
   }
@@ -126,12 +126,13 @@ function ConsoleButton(props) {
       boxShadow: `0 4px 8px gray`,
       border: 'none',
       transform: playTime ? `rotate(${Math.random() < 0.5 ? 45 : -45}deg)` : 'rotate(0)',
+      background: variant === 'outlined' ? '#ffffff' : undefined,
       opacity: use ? 1 : 0.35,
       cursor: use ? 'pointer' : 'default',
       transition: '0.5s all',
     }
     return r
-  }, [use, playTime, Imitation.state.theme.palette.primary.main])
+  }, [use, playTime, variant, Imitation.state.theme.palette.primary.main])
 
   React.useEffect(() => {
     if (window.ontouchstart === undefined) {

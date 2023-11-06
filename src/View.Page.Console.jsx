@@ -18,24 +18,111 @@ import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
 
-function ConsoleSource(props) {
-  const style = React.useMemo(() => {
-    const r = {
-      width: props.width,
-      height: props.height,
-      left: props.left,
-      top: props.top,
-      position: 'absolute',
-      fontSize: 12,
-      opacity: props.source.use ? 1 : 0.35,
-      transition: '0.5s all',
+function ControlSource(props) {
+  const mouseTimeRef = React.useRef()
+  const mouseDownRef = React.useRef()
+
+  const onMouseDown = (e) => {
+    if (e.button !== 0) return
+
+    const x = e.pageX
+    const y = e.pageY
+
+    mouseDownRef.current = [x, y]
+
+    mouseTimeRef.current = setTimeout(() => props.onClick(), 500);
+  }
+
+  const onMouseMove = (e) => {
+    if (mouseDownRef.current === undefined) return
+
+    const x = e.pageX
+    const y = e.pageY
+
+    const changeX = e.pageX - mouseDownRef.current[0]
+    const changeY = e.pageY - mouseDownRef.current[1]
+
+    mouseDownRef.current = [x, y]
+
+    props.onMove(changeX, changeY)
+
+    clearInterval(mouseTimeRef.current)
+  }
+
+  const onMouseUp = (e) => {
+    mouseDownRef.current = undefined
+
+    clearInterval(mouseTimeRef.current)
+  }
+
+  const onTouchStart = (e) => {
+    const x = e.targetTouches[0].pageX
+    const y = e.targetTouches[0].pageY
+
+    mouseDownRef.current = [x, y]
+
+    mouseTimeRef.current = setTimeout(() => props.onClick(), 500);
+  }
+
+  const onTouchMove = (e) => {
+    if (mouseDownRef.current === undefined) return
+
+    const x = e.targetTouches[0].pageX
+    const y = e.targetTouches[0].pageY
+
+    const changeX = e.pageX - mouseDownRef.current[0]
+    const changeY = e.pageY - mouseDownRef.current[1]
+
+    mouseDownRef.current = [x, y]
+
+    props.onMove(changeX, changeY)
+
+    clearInterval(mouseTimeRef.current)
+  }
+
+  const onTouchEnd = (e) => {
+    mouseDownRef.current = undefined
+
+    clearInterval(mouseTimeRef.current)
+  }
+
+  const onContextMenu = (e) => {
+    e.preventDefault()
+
+    props.onClick()
+  }
+
+  const event = {
+    onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
+    onTouchStart: window.ontouchstart !== undefined ? onTouchStart : undefined,
+    onContextMenu: onContextMenu,
+  }
+
+  React.useEffect(() => {
+    if (window.ontouchstart === undefined) {
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+
+      return () => {
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+      }
     }
 
-    return r
-  }, [props.source.use, props.width, props.height, props.left, props.top])
+    if (window.ontouchstart !== undefined) {
+      window.addEventListener('touchmove', onTouchMove)
+      window.addEventListener('touchend', onTouchEnd)
 
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: props.source.use ? 1 : 0.35 }]} variant='outlined' style={style} onClick={props.onClick}>{props.name}</Animation>
+      return () => {
+        window.removeEventListener('touchmove', onTouchMove)
+        window.removeEventListener('touchend', onTouchEnd)
+      }
+    }
+  }, [])
+
+  return props.children(event)
 }
+
 
 function App() {
   const startTime = React.useRef()
@@ -43,9 +130,9 @@ function App() {
 
   const [currentTime, setCurrentTime] = React.useState()
   const [source, setSource] = React.useState()
+  const [sourceNameMap, setSourceNameMap] = React.useState()
   const [height, setHeight] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
-  const [nameMap, setNameMap] = React.useState()
 
   const play = () => { }
 
@@ -76,9 +163,19 @@ function App() {
   }
 
   React.useEffect(() => {
-    const r = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
+    const resize = () => {
+      const r = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
 
-    setHeight(r)
+      setHeight(r)
+    }
+
+    resize()
+
+    window.addEventListener('resize', resize)
+
+    return () => {
+      window.removeEventListener('resize', resize)
+    }
   }, [Imitation.state.consoleFullScreen])
 
   React.useEffect(() => {
@@ -98,21 +195,19 @@ function App() {
     if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => group.push(...i.group))
     if (Imitation.state.consoleCurrent !== null) group = Imitation.state.consoleCurrent.group
 
-    console.log(group, Imitation.state.console, Imitation.state.consoleCurrent)
-
     setSource(group)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
 
   React.useEffect(() => {
     const r = {}
 
-    Imitation.state.audio.map((i) => {
+    Imitation.state.audio.forEach((i) => {
       const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
 
       r[i.id] = audioSetting ? audioSetting.name : i.name
     })
 
-    setNameMap(r)
+    setSourceNameMap(r)
   }, [JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -135,7 +230,7 @@ function App() {
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => fullscreen()}><FullscreenIcon /></Button>
         </div>
 
-        <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' />
+        <div style={{ width: 16, height: '100%' }} />
 
         {
           Imitation.state.console.length > 0 ?
@@ -148,7 +243,7 @@ function App() {
                 }
               </div>
 
-              <Divider style={{ margin: '0 8px', borderColor: '#ffffff' }} orientation='vertical' />
+              <div style={{ width: 16, height: '100%' }} />
             </>
             : null
         }
@@ -189,6 +284,20 @@ function App() {
                   : null
               }
 
+              {
+                currentTime ?
+                  <div style={{ width: 2, height: '100%', position: 'absolute', left: `${currentTime / maxTime - 1}%` }}>
+                    {
+                      new Array(11).fill().map((i, index) => {
+                        return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
+                          <div style={{ whiteSpace: 'nowrap' }}>{Number(index * maxTime / 10).toFixed(2)}</div>
+                        </Animation>
+                      })
+                    }
+                  </div>
+                  : null
+              }
+
             </div>
 
             {
@@ -196,7 +305,13 @@ function App() {
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
                     source.map((i, index) => {
-                      return <ConsoleSource key={index} source={i} name={nameMap[i.id]} width={`${i.duration / i.rate / maxTime * 100}%`} height={40} top={index * 48} left={`${i.when / maxTime * 100}%`} onClick={() => sourceClick(i)} />
+                      return <ControlSource key={index} onClick={() => sourceClick(i)} onMove={(changeX, changeY) => { i.when = Math.max(i.when + changeX * maxTime * 0.001, 0); Imitation.dispatch() }}>
+                        {
+                          (event) => {
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, left: `${i.when / maxTime * 100}%`, top: index * 48, position: 'absolute', fontSize: 12, transition: '0.5s all' }} {...event}>{sourceNameMap[i.id]}</Animation>
+                          }
+                        }
+                      </ControlSource>
                     })
                   }
 
