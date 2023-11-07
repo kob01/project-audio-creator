@@ -109,7 +109,7 @@ function App() {
         </Grid>
 
         <Grid item xs={12}>
-          When <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, when: Number(e.target.innerText) })}>{source.volume}</span>
+          When <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, when: Number(e.target.innerText) })}>{source.when}</span>
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.when} onChange={(e, v) => { setSource({ ...source, when: v }) }} min={0} max={(source.when) + 10} step={0.1} />

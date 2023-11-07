@@ -222,7 +222,8 @@ function ControlSource(props) {
 
 function App() {
   const audioContextRef = React.useRef()
-  const currentTimeRef = React.useRef()
+  const currentTimeOffsetRef = React.useRef(0)
+  const currentTimeIdleRef = React.useRef()
 
   const [playing, setPlaying] = React.useState()
   const [buffer, setBuffer] = React.useState()
@@ -252,19 +253,39 @@ function App() {
       audioContextRef.current = undefined
     }
 
+    const currentTime_ = currentTime === maxTime ? 0 : currentTime
+
     const context = parseAudioContextMultiple(buffer)
 
     audioContextRef.current = context
+
+    currentTimeOffsetRef.current = currentTime_
 
     var maxLength = context.sources.length
 
     var currentLength = 0
 
     audioContextRef.current.sources.forEach(i => {
+      var when = i.source.when
+      var offset = i.source.offset
+      var duration = i.source.duration
+
+      var when = when - currentTime_
+
+      if (when < 0) {
+        offset = offset - when
+        duration = duration + when
+        when = 0
+      }
+
+      if (duration < 0) return maxLength = maxLength - 1
+
       const ended = () => {
         currentLength = currentLength + 1
 
         if (currentLength === maxLength) {
+          console.log(1)
+
           setCurrentTime(maxTime)
 
           audioContextRef.current.audioContext.close()
@@ -277,12 +298,9 @@ function App() {
 
       i.bufferSource.addEventListener('ended', ended)
 
-      const when = i.source.when
-      const offset = i.source.offset
-      const duration = i.source.duration
-
       i.bufferSource.start(when, offset, duration)
     })
+
 
     setPlaying(true)
   }
@@ -365,8 +383,8 @@ function App() {
     if (playing === undefined) return
 
     const loop = () => {
-      currentTimeRef.current = requestIdleCallback(() => {
-        setCurrentTime(audioContextRef.current.audioContext.currentTime)
+      currentTimeIdleRef.current = requestIdleCallback(() => {
+        setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
         loop()
       })
     }
@@ -374,7 +392,7 @@ function App() {
     loop()
 
     return () => {
-      cancelIdleCallback(currentTimeRef.current)
+      cancelIdleCallback(currentTimeIdleRef.current)
     }
   }, [playing])
 
@@ -504,7 +522,7 @@ function App() {
               }
             </div>
 
-            <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 2, left: `calc(${currentTime / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
+            <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 2, left: `calc(${(currentTime) / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
               {
                 buffer ?
                   <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
@@ -521,9 +539,9 @@ function App() {
               }
             </div>
 
-            {
-              source ?
-                <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
+            <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
+              {
+                source ? <>
                   {
                     source.map((i, index) => {
                       return <ControlSource key={i.hash} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
@@ -537,10 +555,10 @@ function App() {
                   }
 
                   <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 48 }}></div>
-                </div>
-                : null
-            }
-
+                </>
+                  : null
+              }
+            </div>
           </div>
         </div>
 
