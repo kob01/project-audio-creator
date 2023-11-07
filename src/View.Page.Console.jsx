@@ -20,6 +20,101 @@ import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
 
+function ControlTime(props) {
+  const mouseDownRef = React.useRef()
+
+  const [active, setActive] = React.useState(false)
+
+  const onMouseDown = (e) => {
+    if (e.button !== 0) return
+
+    const x = e.pageX
+    const y = e.pageY
+
+    mouseDownRef.current = [x, y]
+
+    setActive(true)
+  }
+
+  const onMouseMove = (e) => {
+    if (mouseDownRef.current === undefined) return
+
+    const x = e.pageX
+    const y = e.pageY
+
+    const changeX = e.pageX - mouseDownRef.current[0]
+    const changeY = e.pageY - mouseDownRef.current[1]
+
+    mouseDownRef.current = [x, y]
+
+    props.onMove(changeX, changeY)
+  }
+
+  const onMouseUp = (e) => {
+    mouseDownRef.current = undefined
+
+    setActive(false)
+  }
+
+  const onTouchStart = (e) => {
+    const x = e.targetTouches[0].pageX
+    const y = e.targetTouches[0].pageY
+
+    mouseDownRef.current = [x, y]
+
+    setActive(true)
+  }
+
+  const onTouchMove = (e) => {
+    if (mouseDownRef.current === undefined) return
+
+    const x = e.targetTouches[0].pageX
+    const y = e.targetTouches[0].pageY
+
+    const changeX = e.pageX - mouseDownRef.current[0]
+    const changeY = e.pageY - mouseDownRef.current[1]
+
+    mouseDownRef.current = [x, y]
+
+    props.onMove(changeX, changeY)
+  }
+
+  const onTouchEnd = (e) => {
+    mouseDownRef.current = undefined
+
+    setActive(false)
+  }
+
+  const event = {
+    onMouseDown: window.ontouchstart === undefined ? onMouseDown : undefined,
+    onTouchStart: window.ontouchstart !== undefined ? onTouchStart : undefined,
+  }
+
+  React.useEffect(() => {
+    if (window.ontouchstart === undefined) {
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+
+      return () => {
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+      }
+    }
+
+    if (window.ontouchstart !== undefined) {
+      window.addEventListener('touchmove', onTouchMove)
+      window.addEventListener('touchend', onTouchEnd)
+
+      return () => {
+        window.removeEventListener('touchmove', onTouchMove)
+        window.removeEventListener('touchend', onTouchEnd)
+      }
+    }
+  }, [props.onMove])
+
+  return props.children(event, active)
+}
+
 function ControlSource(props) {
   const mouseTimeRef = React.useRef()
   const mouseDownRef = React.useRef()
@@ -225,12 +320,21 @@ function App() {
     Imitation.setState(pre => { pre.dialogConsoleRename = Imitation.state.consoleCurrent; return pre })
   }
 
-  const move = (changeX, changeY, source) => {
+  const moveSource = (changeX, changeY, source) => {
     const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
 
     current.when = Math.max(current.when + changeX * maxTime * 0.001, 0)
 
     Imitation.dispatch()
+  }
+
+  const moveTime = (changeX, changeY) => {
+    var time = currentTime + changeX * maxTime * 0.001
+
+    if (time < 0) time = 0
+    if (time > maxTime) time = maxTime
+
+    setCurrentTime(time)
   }
 
   const expand = () => {
@@ -276,6 +380,7 @@ function App() {
 
   React.useEffect(() => {
     if (buffer === undefined) setCurrentTime()
+    if (buffer !== undefined) setCurrentTime(0)
   }, [buffer])
 
   React.useEffect(() => {
@@ -322,7 +427,7 @@ function App() {
     <div style={{ position: 'relative', margin: 'auto', width: 'calc(100% - 32px)', height: Imitation.state.consoleExpand ? height : 0, marginBottom: Imitation.state.consoleExpand ? 16 : 0, boxShadow: '0 4px 8px gray', borderRadius: 12, overflow: 'hidden', opacity: Imitation.state.consoleExpand ? 1 : 0, transition: '0.5s all' }}>
       <div style={{ position: 'absolute', width: '100%', height: height, bottom: 0, left: 0, display: 'flex', padding: 16, background: '#ffffff', transition: '0.5s all' }} ref={el => Imitation.state.consoleContainerRef = el}>
 
-        <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+        <div style={{ width: 'fit-content', height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
           {
             !buffer ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
           }
@@ -368,7 +473,7 @@ function App() {
             <div style={{ width: '100%', height: 2, position: 'absolute', bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
 
-              <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
+              <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 {
                   new Array(101).fill().map((i, index) => {
                     if (index % 10 === 0) {
@@ -386,31 +491,42 @@ function App() {
 
               {
                 maxTime ?
-                  <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
+                  <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {
-                        return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
+                        return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
                           <div style={{ whiteSpace: 'nowrap' }}>{Number(index * maxTime / 10).toFixed(2)}</div>
-                        </Animation>
+                        </div>
                       })
                     }
-                  </div>
+                  </Animation>
                   : null
               }
             </div>
 
-            {
-              buffer ?
-                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', left: `calc(${currentTime / maxTime * 100}% - 1px)`, background: Imitation.state.theme.palette.primary.main, transition: play ? 'none' : '0.5s all' }}></div>
-                : null
-            }
+            <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 2, left: `calc(${currentTime / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
+              {
+                buffer ?
+                  <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
+                    {
+                      (event, active) => {
+                        return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: '0.5s all' }}>
+                          <div style={{ width: '100%', height: '100%', position: 'absolute', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
+                          <div style={{ width: 12, height: 12, position: 'absolute', transform: active ? 'rotate(45deg)' : 'rotate(90deg)', cursor: 'pointer', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }} {...event}></div>
+                        </Animation>
+                      }
+                    }
+                  </ControlTime>
+                  : null
+              }
+            </div>
 
             {
               source ?
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
                     source.map((i, index) => {
-                      return <ControlSource key={i.hash} maxTime={maxTime} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => move(changeX, changeY, i)}>
+                      return <ControlSource key={i.hash} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
                         {
                           (event) => {
                             return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
