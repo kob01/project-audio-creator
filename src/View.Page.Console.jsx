@@ -137,7 +137,7 @@ function App() {
   const load = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const source_ = JSON.parse(JSON.stringify(source))
+    const source_ = JSON.parse(JSON.stringify(source.filter(i => i.use === true)))
 
     source_.forEach(i => Object.assign(i, { ...Imitation.state.audio.find(i_ => i_.id === i.id), ...i }))
 
@@ -274,7 +274,7 @@ function App() {
     var source = []
 
     if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => source.push(...i.group))
-    if (Imitation.state.consoleCurrent !== null) source = Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group
+    if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? source.push(...i.group) : null)
 
     const r = source.length > 0 ? Math.max(...source.map((i) => i.when + i.duration / i.rate)) : 0
 
@@ -284,8 +284,8 @@ function App() {
   React.useEffect(() => {
     var r = []
 
-    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => r.push(...i.group))
-    if (Imitation.state.consoleCurrent !== null) r = Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => r.push(...i.group.map(i_ => ({ ...i_, group: i.name }))))
+    if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? r.push(...i.group.map(i_ => ({ ...i_, group: i.name }))) : null)
 
     r.forEach(i => {
       if (i.name === undefined) {
@@ -296,6 +296,8 @@ function App() {
         const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
         if (audio) i.name = audio.name
       }
+
+      i.name = i.group + '.' + i.name
     })
 
     setSource(r)
