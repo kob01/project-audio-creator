@@ -17,7 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioContext, analyseAudioContext } from './utils.audio'
+import { loadAudioBuffer, playAudioContext } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
 function App() {

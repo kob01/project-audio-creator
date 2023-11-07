@@ -15,7 +15,7 @@ import FolderZipIcon from '@mui/icons-material/FolderZip'
 
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
-import { loadAudioBuffer, parseAudioContext } from './utils.audio'
+import { loadAudioBuffer, parseAudioContextMultiple } from './utils.audio'
 import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
@@ -127,12 +127,14 @@ function ControlSource(props) {
 
 function App() {
   const audioContextRef = React.useRef()
+  const currentTimeRef = React.useRef()
 
   const [playing, setPlaying] = React.useState()
   const [buffer, setBuffer] = React.useState()
   const [source, setSource] = React.useState()
   const [height, setHeight] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
+  const [currentTime, setCurrentTime] = React.useState(0)
 
   const load = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
@@ -150,31 +152,28 @@ function App() {
 
   const play = () => {
     if (audioContextRef.current !== undefined) {
-      audioContextRef.current.forEach(i => {
-        i.bufferSource.stop()
-        i.audioContext.close()
-      })
+      audioContextRef.current.audioContext.close()
 
       audioContextRef.current = undefined
     }
 
-    const context = buffer.map(i => ({ source: i, ...parseAudioContext(i) }))
+    const context = parseAudioContextMultiple(buffer)
 
     audioContextRef.current = context
 
-    var maxLength = context.length
+    var maxLength = context.sources.length
 
     var currentLength = 0
 
-    audioContextRef.current.forEach(i => {
+    audioContextRef.current.sources.forEach(i => {
       const ended = () => {
-        i.audioContext.close()
-
-        audioContextRef.current = audioContextRef.current.filter(i_ => i_ !== i)
-
         currentLength = currentLength + 1
 
         if (currentLength === maxLength) {
+          setCurrentTime(maxTime)
+
+          audioContextRef.current.audioContext.close()
+
           audioContextRef.current = undefined
 
           setPlaying()
@@ -195,10 +194,7 @@ function App() {
 
   const pause = () => {
     if (audioContextRef.current !== undefined) {
-      audioContextRef.current.forEach(i => {
-        i.bufferSource.stop()
-        i.audioContext.close()
-      })
+      audioContextRef.current.audioContext.close()
 
       audioContextRef.current = undefined
     }
@@ -208,10 +204,7 @@ function App() {
 
   const clean = () => {
     if (audioContextRef.current !== undefined) {
-      audioContextRef.current.forEach(i => {
-        i.bufferSource.stop()
-        i.audioContext.close()
-      })
+      audioContextRef.current.audioContext.close()
 
       audioContextRef.current = undefined
     }
@@ -263,6 +256,27 @@ function App() {
       window.removeEventListener('resize', resize)
     }
   }, [Imitation.state.consoleFullScreen])
+
+  React.useEffect(() => {
+    if (playing === undefined) return
+
+    const loop = () => {
+      currentTimeRef.current = requestIdleCallback(() => {
+        setCurrentTime(audioContextRef.current.audioContext.currentTime)
+        loop()
+      })
+    }
+
+    loop()
+
+    return () => {
+      cancelIdleCallback(currentTimeRef.current)
+    }
+  }, [playing])
+
+  React.useEffect(() => {
+    if (buffer === undefined) setCurrentTime()
+  }, [buffer])
 
   React.useEffect(() => {
     if (Imitation.state.consoleExpand === true) {
@@ -351,7 +365,7 @@ function App() {
         <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
-            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+            <div style={{ width: '100%', height: 2, position: 'absolute', bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center' }}>
@@ -386,6 +400,12 @@ function App() {
             </div>
 
             {
+              buffer ?
+                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', left: `calc(${currentTime / maxTime * 100}% - 1px)`, background: Imitation.state.theme.palette.primary.main, transition: play ? 'none' : '0.5s all' }}></div>
+                : null
+            }
+
+            {
               source ?
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
@@ -393,7 +413,7 @@ function App() {
                       return <ControlSource key={i.hash} maxTime={maxTime} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => move(changeX, changeY, i)}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, left: `${i.when / maxTime * 100}%`, top: index * 48, position: 'absolute', fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
