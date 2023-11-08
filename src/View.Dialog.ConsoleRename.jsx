@@ -44,7 +44,7 @@ function App() {
       <Grid container spacing={1}>
 
         <Grid item xs={12}>
-          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Theme Color' value={value.name} onChange={(e, v) => { setValue({ ...value, name: e.target.value }) }} />
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Rename' value={value.name} onChange={(e, v) => { setValue({ ...value, name: e.target.value }) }} />
         </Grid>
 
       </Grid>

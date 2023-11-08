@@ -26,7 +26,7 @@ function App() {
   if (Imitation.state.dialogTimeAlignment === null) return null
 
   return <Dialog open={Imitation.state.dialogTimeAlignment !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
-    <DialogTitle style={{ fontSize: 16 }}>Rename</DialogTitle>
+    <DialogTitle style={{ fontSize: 16 }}>Time Alignment</DialogTitle>
     <DialogContent dividers>
       <Grid container spacing={1}>
 
