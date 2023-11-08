@@ -45,6 +45,8 @@ ImitationINS.state = {
 
   dialogConsoleRename: null,
 
+  dialogTimeAlignment: null,
+  
   dialogAudioSetting: null,
 
   dialogConsoleAudioSetting: null

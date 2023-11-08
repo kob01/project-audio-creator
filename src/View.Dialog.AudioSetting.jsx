@@ -140,35 +140,35 @@ function App() {
         </Grid>
 
         <Grid item xs={12}>
-          Volume <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, volume: Number(e.target.innerText) })}>{source.volume}</span>
+          Volume<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = source.volume : setSource({ ...source, volume: Number(e.target.innerText) })}>{source.volume}</span>
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.volume} onChange={(e, v) => { setSource({ ...source, volume: v }) }} min={0} max={2} step={0.1} />
         </Grid>
 
         <Grid item xs={12}>
-          Rate <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, rate: Number(e.target.innerText) })}>{source.rate}</span>
+          Rate<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = source.rate : setSource({ ...source, rate: Number(e.target.innerText) })}>{source.rate}</span>
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.rate} onChange={(e, v) => { setSource({ ...source, rate: v }) }} min={0} max={2} step={0.1} />
         </Grid>
 
         <Grid item xs={12}>
-          When <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, when: Number(e.target.innerText) })}>{source.when}</span>
+          When<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = source.when : setSource({ ...source, when: Number(e.target.innerText) })}>{source.when}</span>
         </Grid>
         <Grid item xs={12}>
-          <Slider value={source.when} onChange={(e, v) => { setSource({ ...source, when: v }) }} min={0} max={(source.when) + 10} step={0.1} />
+          <Slider value={source.when} onChange={(e, v) => { setSource({ ...source, when: v }) }} min={0} max={source.when + 1} step={0.1} />
         </Grid>
 
         <Grid item xs={12}>
-          Offset <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, offset: Number(e.target.innerText) })}>{source.offset}</span>
+          Offset<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = source.offset : setSource({ ...source, offset: Number(e.target.innerText) })}>{source.offset}</span>
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.offset} onChange={(e, v) => { setSource({ ...source, offset: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />
         </Grid>
 
         <Grid item xs={12}>
-          Duration <span style={{ outline: 'none' }} contentEditable='true' onInput={e => isNaN(e.target.innerText) ? null : setSource({ ...source, duration: Number(e.target.innerText) })}>{source.duration}</span>
+          Duration<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = source.duration : setSource({ ...source, duration: Number(e.target.innerText) })}>{source.duration}</span>
         </Grid>
         <Grid item xs={12}>
           <Slider value={source.duration} onChange={(e, v) => { setSource({ ...source, duration: v }) }} min={0} max={source.audioBuffer.duration} step={0.001} />

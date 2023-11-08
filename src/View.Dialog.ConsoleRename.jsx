@@ -39,7 +39,7 @@ function App() {
   if (value === undefined) return null
 
   return <Dialog open={Imitation.state.dialogConsoleRename !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
-    <DialogTitle style={{ fontSize: 16 }}>TextField</DialogTitle>
+    <DialogTitle style={{ fontSize: 16 }}>Rename</DialogTitle>
     <DialogContent dividers>
       <Grid container spacing={1}>
 

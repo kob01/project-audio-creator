@@ -12,6 +12,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import EditIcon from '@mui/icons-material/Edit'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
+import AlignVerticalCenterIcon from '@mui/icons-material/AlignVerticalCenter'
 
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
@@ -338,6 +339,28 @@ function App() {
     Imitation.setState(pre => { pre.dialogConsoleRename = Imitation.state.consoleCurrent; return pre })
   }
 
+  const timeAlignment = () => {
+    const onChange = (value) => {
+      const all = Imitation.state.console.reduce((t, i) => [...t, ...i.group], [])
+
+      source.forEach(i => {
+        const console = all.find(i_ => i_.hash === i.hash)
+
+        const a = Math.floor(console.when / value)
+
+        const b = console.when % value
+
+        if (b < value / 2) { console.when = a * value }
+        if (b === value / 2) { console.when = a * value }
+        if (b > value / 2) { console.when = a * value + value }
+      })
+
+      Imitation.dispatch()
+    }
+
+    Imitation.setState(pre => { pre.dialogTimeAlignment = { onChange: onChange }; return pre })
+  }
+
   const moveSource = (changeX, changeY, source) => {
     const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
 
@@ -397,8 +420,7 @@ function App() {
   }, [playing])
 
   React.useEffect(() => {
-    if (buffer === undefined) setCurrentTime()
-    if (buffer !== undefined) setCurrentTime(0)
+    setCurrentTime(0)
   }, [buffer])
 
   React.useEffect(() => {
@@ -435,6 +457,8 @@ function App() {
       }
 
       i.name = i.group + '.' + i.name
+
+      i.active = false
     })
 
     setSource(r)
@@ -461,6 +485,13 @@ function App() {
               <>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => rename()}><EditIcon /></Button>
+              </>
+              : null
+          }
+          {
+            Imitation.state.console.length ?
+              <>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeAlignment()}><AlignVerticalCenterIcon /></Button>
               </>
               : null
           }
@@ -547,7 +578,7 @@ function App() {
                       return <ControlSource key={i.hash} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant='outlined' style={{ width: `${i.duration / i.rate / maxTime * 100}%`, height: 40, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
