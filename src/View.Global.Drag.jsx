@@ -27,6 +27,9 @@ function App() {
       Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group.push(item)
     }
 
+    setPosition([0, 0])
+    setIntersection(false)
+
     Imitation.state.dragTarget = null
     Imitation.dispatch()
   }
@@ -56,6 +59,7 @@ function App() {
       window.addEventListener('mouseup', onMouseUp)
 
       return () => {
+        console.log(1)
         window.removeEventListener('mousemove', onMouseMove)
         window.removeEventListener('mouseup', onMouseUp)
       }
@@ -71,7 +75,7 @@ function App() {
       }
     }
 
-  }, [Imitation.state.consoleExpand, Imitation.state.dragTarget, intersection])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, intersection])
 
   React.useEffect(() => {
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
@@ -85,7 +89,7 @@ function App() {
     observer.observe(Imitation.state.consoleContainerRef)
 
     return () => observer.disconnect()
-  }, [Imitation.state.consoleExpand, Imitation.state.dragTarget, Imitation.state.consoleContainerRef])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, Imitation.state.consoleContainerRef])
 
   React.useEffect(() => {
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
@@ -95,7 +99,7 @@ function App() {
     const r = position[0] > contentRect.left && position[0] < contentRect.right && position[1] > contentRect.top && position[1] < contentRect.bottom
 
     setIntersection(r)
-  }, [Imitation.state.consoleExpand, Imitation.state.dragTarget, position, contentRect])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, position, contentRect])
 
   if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
 
