@@ -540,7 +540,7 @@ function App() {
 
               {
                 maxTime ?
-                  <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', transition: '0.5s all' }}>
+                  <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {
                         return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
@@ -578,7 +578,7 @@ function App() {
                       return <ControlSource key={i.hash} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, minWidth: 0, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, paddingLeft: 0, paddingRight: 0, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
