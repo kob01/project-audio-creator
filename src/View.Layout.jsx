@@ -47,7 +47,7 @@ function App() {
         <div style={{ height: 0, flexGrow: 1, position: 'relative' }}><Page /></div>
 
         <div style={{ height: 'fit-content' }}><PageConsole /></div>
-        
+
       </div>
 
     </HashRouter>

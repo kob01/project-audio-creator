@@ -49,7 +49,11 @@ ImitationINS.state = {
   
   dialogAudioSetting: null,
 
-  dialogConsoleAudioSetting: null
+  dialogConsoleAudioSetting: null,
+
+  dialogExample: null,
+
+  dialogLocalStorage: null,
 }
 
 export default ImitationINS

@@ -9,7 +9,7 @@ function App(props) {
 
   React.useEffect(() => {
     const option = {
-      threshold: [0, 0.01, 0.05, 0.1, 0.5]
+      threshold: [0, 0.01, 0.02, 0.03]
     }
 
     const intersectionObserver = new IntersectionObserver(en => {

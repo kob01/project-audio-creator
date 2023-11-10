@@ -13,6 +13,7 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import EditIcon from '@mui/icons-material/Edit'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
 import AlignVerticalCenterIcon from '@mui/icons-material/AlignVerticalCenter'
+import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter'
 
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
@@ -223,15 +224,17 @@ function ControlSource(props) {
 
 function App() {
   const audioContextRef = React.useRef()
-  const currentTimeOffsetRef = React.useRef(0)
+  const currentTimeOffsetRef = React.useRef()
   const currentTimeIdleRef = React.useRef()
+  const sizeDomRef = React.useRef()
+  const sizeRef = React.useRef()
 
   const [playing, setPlaying] = React.useState()
   const [buffer, setBuffer] = React.useState()
   const [source, setSource] = React.useState()
   const [height, setHeight] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
-  const [currentTime, setCurrentTime] = React.useState(0)
+  const [currentTime, setCurrentTime] = React.useState()
 
   const load = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
@@ -285,13 +288,13 @@ function App() {
         currentLength = currentLength + 1
 
         if (currentLength === maxLength) {
-          console.log(1)
-
           setCurrentTime(maxTime)
 
-          audioContextRef.current.audioContext.close()
+          if (audioContextRef.current !== undefined) {
+            audioContextRef.current.audioContext.close()
 
-          audioContextRef.current = undefined
+            audioContextRef.current = undefined
+          }
 
           setPlaying()
         }
@@ -304,6 +307,8 @@ function App() {
 
 
     setPlaying(true)
+
+    if (currentTime_ === 0) setCurrentTime(0)
   }
 
   const pause = () => {
@@ -361,6 +366,14 @@ function App() {
     Imitation.setState(pre => { pre.dialogTimeAlignment = { onChange: onChange }; return pre })
   }
 
+  const timeSort = () => {
+    Imitation.state.console.forEach(i => {
+      i.group = i.group.sort((a, b) => a.when - b.when)
+    })
+
+    Imitation.dispatch()
+  }
+
   const moveSource = (changeX, changeY, source) => {
     const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
 
@@ -385,6 +398,16 @@ function App() {
   const fullscreen = () => {
     Imitation.setState(pre => { pre.consoleFullScreen = !pre.consoleFullScreen; return pre })
   }
+
+  React.useEffect(() => {
+    const observe = new ResizeObserver(en => {
+      sizeRef.current = [sizeDomRef.current.offsetWidth, sizeDomRef.current.offsetHeight]
+    })
+
+    observe.observe(sizeDomRef.current)
+
+    return () => observe.disconnect()
+  }, [])
 
   React.useEffect(() => {
     const resize = () => {
@@ -420,7 +443,8 @@ function App() {
   }, [playing])
 
   React.useEffect(() => {
-    setCurrentTime(0)
+    if (buffer !== undefined) setCurrentTime(0)
+    if (buffer === undefined) setCurrentTime()
   }, [buffer])
 
   React.useEffect(() => {
@@ -462,6 +486,8 @@ function App() {
     })
 
     setSource(r)
+
+    console.log(1)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -471,13 +497,13 @@ function App() {
 
         <div style={{ width: 'fit-content', height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
           {
-            !buffer ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
+            buffer === undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
           }
           {
-            buffer && playing ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => pause()}><PauseIcon /></Button> : null
+            buffer !== undefined && playing !== undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => pause()}><PauseIcon /></Button> : null
           }
           {
-            buffer && !playing ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => play()}><PlayArrowIcon /></Button> : null
+            buffer !== undefined && playing === undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => play()}><PlayArrowIcon /></Button> : null
           }
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => add()}><PlaylistAddIcon /></Button>
           {
@@ -489,9 +515,10 @@ function App() {
               : null
           }
           {
-            Imitation.state.console.length ?
+            Imitation.state.console.length > 0 ?
               <>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeAlignment()}><AlignVerticalCenterIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeSort()}><AlignHorizontalCenterIcon /></Button>
               </>
               : null
           }
@@ -517,9 +544,28 @@ function App() {
         }
 
         <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
-          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          <div style={{ width: '100%', height: '100%', position: 'relative' }} ref={el => sizeDomRef.current = el}>
 
-            <div style={{ width: '100%', height: 2, position: 'absolute', bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+            {
+              source !== undefined ?
+                <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
+                  {
+                    source.map((i, index) => {
+                      return <ControlSource key={index} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
+                        {
+                          (event) => {
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, minWidth: 0, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, paddingLeft: 0, paddingRight: 0, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                          }
+                        }
+                      </ControlSource>
+                    })
+                  }
+                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 48 }}></div>
+                </div>
+                : null
+            }
+
+            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -539,7 +585,7 @@ function App() {
               </div>
 
               {
-                maxTime ?
+                maxTime !== undefined ?
                   <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {
@@ -553,9 +599,9 @@ function App() {
               }
             </div>
 
-            <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 2, left: `calc(${(currentTime) / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
-              {
-                buffer ?
+            {
+              buffer !== undefined && currentTime !== undefined ?
+                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 3, left: `calc(${currentTime / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
                   <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
                     {
                       (event, active) => {
@@ -566,30 +612,10 @@ function App() {
                       }
                     }
                   </ControlTime>
-                  : null
-              }
-            </div>
+                </div>
+                : null
+            }
 
-            <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
-              {
-                source ? <>
-                  {
-                    source.map((i, index) => {
-                      return <ControlSource key={i.hash} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
-                        {
-                          (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} key={i.hash} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, minWidth: 0, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, paddingLeft: 0, paddingRight: 0, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
-                          }
-                        }
-                      </ControlSource>
-                    })
-                  }
-
-                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 48 }}></div>
-                </>
-                  : null
-              }
-            </div>
           </div>
         </div>
 
