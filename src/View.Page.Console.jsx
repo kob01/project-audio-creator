@@ -226,6 +226,7 @@ function App() {
   const [playing, setPlaying] = React.useState()
   const [buffer, setBuffer] = React.useState()
   const [source, setSource] = React.useState()
+  const [sourceRender, setSourceRender] = React.useState()
   const [height, setHeight] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
   const [currentTime, setCurrentTime] = React.useState()
@@ -371,7 +372,27 @@ function App() {
   const moveSource = (changeX, changeY, source) => {
     const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
 
-    current.when = Math.max(current.when + changeX * maxTime * 0.001, 0)
+    const min = current.when
+
+    const minChangeX = Math.max(changeX * maxTime * 0.001, -min)
+
+    current.when = Math.max(current.when + minChangeX, 0)
+
+    Imitation.dispatch()
+  }
+
+  const moveGroup = (changeX, changeY, group) => {
+    const current = Imitation.state.console.find(i => i.hash === group.hash)
+
+    const min = Math.min(...current.group.map(i => i.when))
+
+    const minChangeX = Math.max(changeX * maxTime * 0.001, -min)
+
+    current.group.forEach(source => {
+      const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
+
+      current.when = Math.max(current.when + minChangeX, 0)
+    })
 
     Imitation.dispatch()
   }
@@ -470,6 +491,26 @@ function App() {
     })
 
     setSource(r)
+
+    var r_ = []
+
+    if (Imitation.state.consoleCurrent !== null) {
+      r_ = r
+    }
+
+    if (Imitation.state.consoleCurrent === null) {
+      r_ = Imitation.state.console.map(i => ({ ...i }))
+
+      r_.forEach(i => {
+        i.when = Math.min(...i.group.map(i => i.when))
+        i.duration = Math.max(...i.group.map(i => i.when + i.duration - i.offset)) - i.when
+        i.offset = 0
+        i.rate = 1
+        i.use = true
+      })
+    }
+
+    setSourceRender(r_)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -525,11 +566,11 @@ function App() {
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
             {
-              source !== undefined ?
+              sourceRender !== undefined ?
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
-                    source.map((i, index) => {
-                      return <ControlSource key={index} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
+                    sourceRender.map((i, index) => {
+                      return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudioSetting: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
                         {
                           (event) => {
                             return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
