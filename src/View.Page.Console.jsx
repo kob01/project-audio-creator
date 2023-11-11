@@ -1,9 +1,6 @@
 import React from 'react'
 
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import TextField from '@mui/material/TextField'
-import Tooltip from '@mui/material/Tooltip'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -18,7 +15,6 @@ import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter
 import Imitation from './utils.imitation'
 import { hash } from './utils.common'
 import { loadAudioBuffer, parseAudioContextMultiple } from './utils.audio'
-import { TextFieldSX } from './utils.mui.sx'
 
 import Animation from './View.Component.Animation'
 
@@ -226,8 +222,6 @@ function App() {
   const audioContextRef = React.useRef()
   const currentTimeOffsetRef = React.useRef()
   const currentTimeIdleRef = React.useRef()
-  const sizeDomRef = React.useRef()
-  const sizeRef = React.useRef()
 
   const [playing, setPlaying] = React.useState()
   const [buffer, setBuffer] = React.useState()
@@ -400,16 +394,6 @@ function App() {
   }
 
   React.useEffect(() => {
-    const observe = new ResizeObserver(en => {
-      sizeRef.current = [sizeDomRef.current.offsetWidth, sizeDomRef.current.offsetHeight]
-    })
-
-    observe.observe(sizeDomRef.current)
-
-    return () => observe.disconnect()
-  }, [])
-
-  React.useEffect(() => {
     const resize = () => {
       const r = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
 
@@ -486,8 +470,6 @@ function App() {
     })
 
     setSource(r)
-
-    console.log(1)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
   return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
@@ -529,22 +511,18 @@ function App() {
 
         {
           Imitation.state.console.length > 0 ?
-            <>
-              <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
-                {
-                  Imitation.state.console.map((i, index) => {
-                    return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={i.hash} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
-                  })
-                }
-              </div>
-
-              <div style={{ width: 16, height: '100%' }} />
-            </>
+            <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
+              {
+                Imitation.state.console.map((i, index) => {
+                  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={i.hash} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
+                })
+              }
+            </div>
             : null
         }
 
-        <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 8px' }}>
-          <div style={{ width: '100%', height: '100%', position: 'relative' }} ref={el => sizeDomRef.current = el}>
+        <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 16px 8px 16px' }}>
+          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
             {
               source !== undefined ?
@@ -554,13 +532,13 @@ function App() {
                       return <ControlSource key={index} onClick={() => Imitation.assignState({ dialogConsoleAudioSetting: i })} onMove={(changeX, changeY) => moveSource(changeX, changeY, i)}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, height: 40, minWidth: 0, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 48, fontSize: 12, paddingLeft: 0, paddingRight: 0, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
                     })
                   }
-                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 48 }}></div>
+                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 44 }}></div>
                 </div>
                 : null
             }

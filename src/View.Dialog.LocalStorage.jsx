@@ -6,11 +6,8 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 import Grid from '@mui/material/Grid'
-import TextField from '@mui/material/TextField'
-import Autocomplete from '@mui/material/Autocomplete'
 
 import Imitation from './utils.imitation'
-import { AutocompleteSX } from './utils.mui.sx'
 
 function App() {
   const [ifLocalStorage, setIfLocalStorage] = React.useState()
@@ -26,16 +23,6 @@ function App() {
     Imitation.state.message = 'Save'
 
     Imitation.dispatch()
-
-    // const blob = new Blob([data], { type: 'application/json' })
-    // const url = URL.createObjectURL(blob)
-
-    // const link = document.createElement('a')
-    // link.href = url
-    // link.download = 'library.json'
-    // link.click()
-
-    // URL.revokeObjectURL(url)
   }
 
   const load = () => {
@@ -45,24 +32,6 @@ function App() {
     Imitation.state.message = 'Load'
 
     Imitation.dispatch()
-
-    // const file = e.target.files[0]
-
-    // const reader = new FileReader()
-
-    // reader.onload = (e) => {
-    //   const data = JSON.parse(e.target.result)
-
-    //   Imitation.state.audioSetting = data.audioSetting
-    //   Imitation.state.console = data.console
-    //   Imitation.state.consoleExpand = true
-    //   Imitation.state.navigationDrawerExpand = false
-    //   Imitation.state.message = 'Loaded'
-
-    //   Imitation.dispatch()
-    // }
-
-    // reader.readAsText(file)
   }
 
   React.useEffect(() => {
@@ -77,17 +46,14 @@ function App() {
       <Grid container spacing={1}>
 
         <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <Button fullWidth variant='outlined' onClick={() => save()}>Save</Button>
-        </Grid>
-
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <Button fullWidth variant='outlined' onClick={() => load()}>Load</Button>
+          Save current data into local OR Load local data into app
         </Grid>
 
       </Grid>
     </DialogContent>
     <DialogActions>
-      {/* <Button variant='contained' onClick={() => save()}>Save</Button> */}
+      <Button variant='contained' onClick={() => save()}>Save</Button>
+      <Button variant='contained' onClick={() => load()}>Load</Button>
     </DialogActions>
   </Dialog >
 }

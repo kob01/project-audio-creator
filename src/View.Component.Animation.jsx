@@ -1,9 +1,9 @@
 import React from 'react'
 
-function App(props) {
-  const { tag = 'div', animation, restore, ref_, ...params } = props
+function App(props, ref) {
+  const { tag = 'div', animation, restore, ...params } = props
 
-  const ref = React.useRef()
+  const currentRef = React.useRef()
 
   const [style, setStyle] = React.useState(animation[0])
 
@@ -17,12 +17,12 @@ function App(props) {
       if (restore && en[0].intersectionRatio === 0) setStyle(animation[0])
     }, option)
 
-    intersectionObserver.observe(ref.current)
+    intersectionObserver.observe(currentRef.current)
 
     return () => intersectionObserver.disconnect()
   }, [JSON.stringify(props.animation)])
 
-  return React.createElement(tag, { ...params, style: { ...params.style, ...style }, ref: el => { ref.current = el; if (ref_) ref_(el) } })
+  return React.createElement(tag, { ...params, style: { ...params.style, ...style }, ref: el => { currentRef.current = el; if (ref) ref(el) } })
 }
 
-export default App
+export default React.forwardRef(App)
