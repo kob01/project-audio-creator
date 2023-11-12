@@ -9,6 +9,9 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import EditIcon from '@mui/icons-material/Edit'
 import FolderZipIcon from '@mui/icons-material/FolderZip'
+import CopyAllIcon from '@mui/icons-material/CopyAll'
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import AlignVerticalCenterIcon from '@mui/icons-material/AlignVerticalCenter'
 import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter'
 
@@ -339,6 +342,42 @@ function App() {
     Imitation.setState(pre => { pre.dialogConsoleRename = Imitation.state.consoleCurrent; return pre })
   }
 
+  const copy = () => {
+    const current = Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash)
+    const current_ = JSON.parse(JSON.stringify(current))
+
+    current_.hash = hash()
+    current_.group.forEach(i => i.hash = hash())
+
+    Imitation.setState(pre => { pre.console.push(current_); return pre })
+  }
+
+  const up = () => {
+    const current = Imitation.state.console.findIndex(i => i.hash === Imitation.state.consoleCurrent.hash)
+
+    if (current === 0) return
+
+    const [a, b] = [Imitation.state.console[current - 1], Imitation.state.console[current]]
+
+    Imitation.state.console[current - 1] = b
+    Imitation.state.console[current] = a
+
+    Imitation.setState(pre => { pre.console = [...pre.console]; return pre })
+  }
+
+  const down = () => {
+    const current = Imitation.state.console.findIndex(i => i.hash === Imitation.state.consoleCurrent.hash)
+
+    if (current === Imitation.state.console.length - 1) return
+
+    const [a, b] = [Imitation.state.console[current], Imitation.state.console[current + 1]]
+
+    Imitation.state.console[current] = b
+    Imitation.state.console[current + 1] = a
+
+    Imitation.setState(pre => { pre.console = [...pre.console]; return pre })
+  }
+
   const timeAlignment = () => {
     const onChange = (value) => {
       const all = Imitation.state.console.reduce((t, i) => [...t, ...i.group], [])
@@ -472,34 +511,15 @@ function App() {
   React.useEffect(() => {
     var r = []
 
-    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => r.push(...i.group.map(i_ => ({ ...i_, group: i.name }))))
-    if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? r.push(...i.group.map(i_ => ({ ...i_, group: i.name }))) : null)
-
-    r.forEach(i => {
-      if (i.name === undefined) {
-        const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
-        if (audioSetting) i.name = audioSetting.name
-      }
-      if (i.name === undefined) {
-        const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
-        if (audio) i.name = audio.name
-      }
-
-      i.name = i.group + '.' + i.name
-
-      i.active = false
-    })
+    if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => r.push(...i.group.map(i_ => ({ ...i_ }))))
+    if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? r.push(...i.group.map(i_ => ({ ...i_ }))) : null)
 
     setSource(r)
 
     var r_ = []
 
-    if (Imitation.state.consoleCurrent !== null) {
-      r_ = r
-    }
-
     if (Imitation.state.consoleCurrent === null) {
-      r_ = Imitation.state.console.map(i => ({ ...i }))
+      Imitation.state.console.forEach(i => r_.push({ ...i }))
 
       r_.forEach(i => {
         i.when = Math.min(...i.group.map(i => i.when))
@@ -507,6 +527,23 @@ function App() {
         i.offset = 0
         i.rate = 1
         i.use = true
+      })
+    }
+
+    if (Imitation.state.consoleCurrent !== null) {
+      Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? r_.push(...i.group.map(i_ => ({ ...i_, group: i.name }))) : null)
+
+      r_.forEach(i => {
+        if (i.name === undefined) {
+          const audioSetting = Imitation.state.audioSetting.find(i_ => i_.id === i.id)
+          if (audioSetting) i.name = audioSetting.name
+        }
+        if (i.name === undefined) {
+          const audio = Imitation.state.audio.find(i_ => i_.id === i.id)
+          if (audio) i.name = audio.name
+        }
+
+        i.name = i.group + '.' + i.name
       })
     }
 
@@ -534,6 +571,9 @@ function App() {
               <>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => rename()}><EditIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => copy()}><CopyAllIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => up()}><KeyboardArrowUpIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => down()}><KeyboardArrowDownIcon /></Button>
               </>
               : null
           }
@@ -555,7 +595,7 @@ function App() {
             <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
               {
                 Imitation.state.console.map((i, index) => {
-                  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={i.hash} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
+                  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
                 })
               }
             </div>
@@ -579,7 +619,7 @@ function App() {
                       </ControlSource>
                     })
                   }
-                  <div style={{ width: '100%', height: 16, position: 'absolute', top: source.length * 44 }}></div>
+                  <div style={{ width: '100%', height: 16, position: 'absolute', top: sourceRender.length * 44 }}></div>
                 </div>
                 : null
             }
