@@ -38,6 +38,12 @@ function App() {
       current.group.forEach(i => i.volume = group.volume)
     }
 
+    if (group.when !== undefined) {
+      const when = Math.min(...current.group.map(i => i.when))
+
+      current.group.forEach(i => i.when = i.when + group.when - when)
+    }
+
     Imitation.dispatch()
   }
 
@@ -53,10 +59,11 @@ function App() {
     const current = Imitation.state.console.find(i => i.hash === Imitation.state.dialogConsoleGroup.hash)
 
     const name = current.name
-    const use = current.group.some(i => i.use === true)
-    const volume = current.group.reduce((t, i) => t + i.volume, 0) / current.group.length
+    // const use = current.group.some(i => i.use === true)
+    // const volume = current.group.reduce((t, i) => t + i.volume, 0) / current.group.length
+    const when = Math.min(...current.group.map(i => i.when))
 
-    setGroup({ name, use, volume })
+    setGroup({ name, when })
   }
 
   React.useEffect(() => {
@@ -83,8 +90,15 @@ function App() {
           <Slider value={group.volume} onChange={(e, v) => { setGroup({ ...group, volume: v }) }} min={0} max={2} step={0.1} />
         </Grid>
 
+        <Grid item xs={12}>
+          When<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = group.when : setGroup({ ...group, when: Number(e.target.innerText) })}>{group.when}</span>
+        </Grid>
+        <Grid item xs={12}>
+          <Slider value={group.when} onChange={(e, v) => { setGroup({ ...group, when: v }) }} min={0} max={group.when + 1} step={0.1} />
+        </Grid>
+
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button style={{ margin: '0 8px' }} variant='contained' color={group.use ? 'primary' : 'inherit'} onClick={(e) => { setGroup({ ...group, use: !group.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
+          <Button style={{ margin: '0 8px' }} variant={group.use !== undefined ? 'contained' : 'outlined'} color={group.use ? 'primary' : 'inherit'} onClick={(e) => { setGroup({ ...group, use: !group.use }) }}><SendIcon style={{ marginRight: 4 }} />Use</Button>
           <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => reset()}><RestoreIcon style={{ marginRight: 4 }} />Reset</Button>
         </Grid>
 

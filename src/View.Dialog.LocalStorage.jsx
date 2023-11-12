@@ -34,6 +34,15 @@ function App() {
     Imitation.dispatch()
   }
 
+  const copy = () => {
+    const r = {
+      audioSetting: Imitation.state.audioSetting,
+      console: Imitation.state.console,
+    }
+
+    navigator.clipboard.writeText(JSON.stringify(r)).then(res => Imitation.assignState({ message: 'Copy' }))
+  }
+
   React.useEffect(() => {
     if (Imitation.state.dialogLocalStorage !== null) {
 
@@ -52,6 +61,7 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
+      <Button variant='contained' onClick={() => copy()}>Copy</Button>
       <Button variant='contained' onClick={() => save()}>Save</Button>
       <Button variant='contained' onClick={() => load()}>Load</Button>
     </DialogActions>
