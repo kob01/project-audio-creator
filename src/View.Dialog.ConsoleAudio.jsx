@@ -23,28 +23,28 @@ import { TextFieldSX } from './utils.mui.sx'
 function App() {
   const [source, setSource] = React.useState()
 
-  const onClose = () => {
-    Imitation.assignState({ dialogConsoleAudioSetting: null })
+  const close = () => {
+    Imitation.assignState({ dialogConsoleAudio: null })
   }
 
-  const onSave = () => {
+  const save = () => {
     const target = {}
 
     const keys = ['id', 'use', 'volume', 'rate', 'when', 'offset', 'duration']
 
     keys.forEach(i => target[i] = source[i])
 
-    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash)
+    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudio.hash)
 
     Object.assign(console, target)
 
     Imitation.dispatch()
   }
 
-  const onDelete = () => {
-    const console = Imitation.state.console.find(i => i.group.find(i_ => i_.hash === Imitation.state.dialogConsoleAudioSetting.hash))
+  const remove = () => {
+    const console = Imitation.state.console.find(i => i.group.find(i_ => i_.hash === Imitation.state.dialogConsoleAudio.hash))
 
-    console.group = console.group.filter(i => i.hash !== Imitation.state.dialogConsoleAudioSetting.hash)
+    console.group = console.group.filter(i => i.hash !== Imitation.state.dialogConsoleAudio.hash)
 
     Imitation.dispatch()
   }
@@ -54,15 +54,15 @@ function App() {
   }
 
   const reset = () => {
-    setSource({ ...source, ...Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash) })
+    setSource({ ...source, ...Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudio.hash) })
   }
 
   const init = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudioSetting.hash)
+    const console = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === Imitation.state.dialogConsoleAudio.hash)
 
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogConsoleAudioSetting.id)))
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogConsoleAudio.id)))
 
     const source = await loadAudioBuffer(audio)
 
@@ -74,14 +74,14 @@ function App() {
   }
 
   React.useEffect(() => {
-    if (Imitation.state.dialogConsoleAudioSetting !== null) {
+    if (Imitation.state.dialogConsoleAudio !== null) {
       init()
     }
-  }, [Imitation.state.dialogConsoleAudioSetting])
+  }, [Imitation.state.dialogConsoleAudio])
 
   if (source === undefined) return null
 
-  return <Dialog open={Imitation.state.dialogConsoleAudioSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogConsoleAudio !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>
@@ -138,10 +138,10 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { onDelete(); onClose(); }} color='error'><DeleteIcon style={{ marginRight: 4 }} />Delete</Button>
-      <Button variant='contained' onClick={() => { onSave(); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { remove(); close(); }} color='error'><DeleteIcon style={{ marginRight: 4 }} />Delete</Button>
+      <Button variant='contained' onClick={() => { save(); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogConsoleAudioSetting, JSON.stringify(state.console), JSON.stringify(state.audio)])
+export default Imitation.withBindRender(App, state => [state.dialogConsoleAudio, JSON.stringify(state.console), JSON.stringify(state.audio)])

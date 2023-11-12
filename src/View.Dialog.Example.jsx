@@ -40,7 +40,7 @@ function App() {
     Imitation.assignState({ dialogExample: null })
   }
 
-  const onClose = () => {
+  const close = () => {
     Imitation.assignState({ dialogExample: null })
   }
 
@@ -51,7 +51,7 @@ function App() {
     }
   }, [Imitation.state.dialogExample])
 
-  return <Dialog open={Imitation.state.dialogExample !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogExample !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>Example</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>

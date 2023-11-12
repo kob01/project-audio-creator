@@ -4,8 +4,8 @@ import { Route, Switch } from 'react-router-dom'
 import Imitation from './utils.imitation'
 
 const Default = React.lazy(() => import('./View.Page.Default'))
-const SimplePiano = React.lazy(() => import('./View.Page.SimplePiano'))
-const BassoonStacF1 = React.lazy(() => import('./View.Page.BassoonStacF1'))
+const SimplePiano = React.lazy(() => import('./View.Page.Playground.SimplePiano'))
+const BassoonStacF1 = React.lazy(() => import('./View.Page.Playground.BassoonStacF1'))
 
 function SuspenseLoading() {
   React.useEffect(() => {

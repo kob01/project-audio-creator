@@ -338,8 +338,8 @@ function App() {
     Imitation.setState(pre => { pre.console = pre.console.filter(i => i.hash !== pre.consoleCurrent.hash); pre.consoleCurrent = null; return pre })
   }
 
-  const rename = () => {
-    Imitation.setState(pre => { pre.dialogConsoleRename = Imitation.state.consoleCurrent; return pre })
+  const edit = () => {
+    Imitation.setState(pre => { pre.dialogConsoleGroup = Imitation.state.consoleCurrent; return pre })
   }
 
   const copy = () => {
@@ -397,7 +397,7 @@ function App() {
       Imitation.dispatch()
     }
 
-    Imitation.setState(pre => { pre.dialogTimeAlignment = { onChange: onChange }; return pre })
+    Imitation.setState(pre => { pre.dialogConsoleTimeAlignment = { onChange: onChange }; return pre })
   }
 
   const timeSort = () => {
@@ -526,7 +526,7 @@ function App() {
         i.duration = Math.max(...i.group.map(i => i.when + i.duration - i.offset)) - i.when
         i.offset = 0
         i.rate = 1
-        i.use = true
+        i.use = i.group.some(i => i.use === true)
       })
     }
 
@@ -570,7 +570,7 @@ function App() {
             Imitation.state.consoleCurrent ?
               <>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => rename()}><EditIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => edit()}><EditIcon /></Button>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => copy()}><CopyAllIcon /></Button>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => up()}><KeyboardArrowUpIcon /></Button>
                 <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => down()}><KeyboardArrowDownIcon /></Button>
@@ -610,7 +610,7 @@ function App() {
                 <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
                   {
                     sourceRender.map((i, index) => {
-                      return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudioSetting: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
+                      return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudio: i }); if (Imitation.state.consoleCurrent === null) Imitation.assignState({ dialogConsoleGroup: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
                         {
                           (event) => {
                             return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>

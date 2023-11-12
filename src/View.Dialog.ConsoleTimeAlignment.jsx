@@ -15,17 +15,17 @@ import Imitation from './utils.imitation'
 function App() {
   const [value, setValue] = React.useState(1)
 
-  const onClose = () => {
-    Imitation.assignState({ dialogTimeAlignment: null })
+  const close = () => {
+    Imitation.assignState({ dialogConsoleTimeAlignment: null })
   }
 
-  const onSave = () => {
-    Imitation.state.dialogTimeAlignment.onChange(value)
+  const save = () => {
+    Imitation.state.dialogConsoleTimeAlignment.onChange(value)
   }
 
-  if (Imitation.state.dialogTimeAlignment === null) return null
+  if (Imitation.state.dialogConsoleTimeAlignment === null) return null
 
-  return <Dialog open={Imitation.state.dialogTimeAlignment !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogConsoleTimeAlignment !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>Time Alignment</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>
@@ -40,9 +40,9 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { onSave(); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { save(); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogTimeAlignment])
+export default Imitation.withBindRender(App, state => [state.dialogConsoleTimeAlignment])

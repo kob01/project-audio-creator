@@ -12,7 +12,7 @@ import Imitation from './utils.imitation'
 function App() {
   const [ifLocalStorage, setIfLocalStorage] = React.useState()
 
-  const onClose = () => {
+  const close = () => {
     Imitation.assignState({ dialogLocalStorage: null })
   }
 
@@ -40,7 +40,7 @@ function App() {
     }
   }, [Imitation.state.dialogLocalStorage])
 
-  return <Dialog open={Imitation.state.dialogLocalStorage !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogLocalStorage !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>LocalStorage</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>

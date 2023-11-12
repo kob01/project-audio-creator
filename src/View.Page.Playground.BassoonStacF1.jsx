@@ -58,7 +58,7 @@ function ConsoleButton(props) {
 
     mouseDownRef.current = true
 
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogPlaygroundAudio = props.source; return pre }), 500);
   }
 
   const onMouseMove = (e) => {
@@ -80,7 +80,7 @@ function ConsoleButton(props) {
 
     mouseDownRef.current = true
 
-    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre }), 500);
+    mouseTimeRef.current = setTimeout(() => Imitation.setState(pre => { pre.dialogPlaygroundAudio = props.source; return pre }), 500);
   }
 
   const onTouchMove = (e) => {
@@ -100,7 +100,7 @@ function ConsoleButton(props) {
   const onContextMenu = (e) => {
     e.preventDefault()
 
-    Imitation.setState(pre => { pre.dialogAudioSetting = props.source; return pre })
+    Imitation.setState(pre => { pre.dialogPlaygroundAudio = props.source; return pre })
   }
 
   const event = {
@@ -159,7 +159,7 @@ function ConsoleButton(props) {
   React.useEffect(() => {
     if (use === false) return
 
-    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleRename !== null || Imitation.state.dialogTimeAlignment !== null || Imitation.state.dialogAudioSetting !== null || Imitation.state.dialogConsoleAudioSetting !== null) return
+    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
@@ -168,7 +168,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogExample, Imitation.state.dialogLocalStorage, Imitation.state.dialogConsoleRename, Imitation.state.dialogTimeAlignment, Imitation.state.dialogAudioSetting, Imitation.state.dialogConsoleAudioSetting])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogExample, Imitation.state.dialogLocalStorage, Imitation.state.dialogConsoleTimeAlignment, Imitation.state.dialogPlaygroundAudio, Imitation.state.dialogConsoleAudio, Imitation.state.dialogConsoleGroup])
 
   return <Button variant={variant} style={style} {...event}>{name}</Button>
 }
@@ -259,4 +259,4 @@ function App() {
   </Animation>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogExample, state.dialogLocalStorage, state.dialogConsoleRename, state.dialogTimeAlignment, state.dialogAudioSetting, state.dialogConsoleAudioSetting, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.dialogExample, state.dialogLocalStorage, state.dialogConsoleTimeAlignment, state.dialogPlaygroundAudio, state.dialogConsoleAudio, state.dialogConsoleGroup, state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

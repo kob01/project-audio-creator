@@ -18,7 +18,7 @@ import { TextFieldSX } from './utils.mui.sx'
 function App() {
   const [value, setValue] = React.useState()
 
-  const onClose = () => {
+  const close = () => {
     Imitation.assignState({ dialogGlobalSetting: null })
   }
 
@@ -32,7 +32,7 @@ function App() {
 
   if (value === undefined) return null
 
-  return <Dialog open={Imitation.state.dialogGlobalSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogGlobalSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>
@@ -62,7 +62,7 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme, useCanvasAnimation: value.useCanvasAnimation }); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme, useCanvasAnimation: value.useCanvasAnimation }); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }

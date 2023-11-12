@@ -70,11 +70,11 @@ function ControlCode(props) {
 function App() {
   const [source, setSource] = React.useState()
 
-  const onClose = () => {
-    Imitation.assignState({ dialogAudioSetting: null })
+  const close = () => {
+    Imitation.assignState({ dialogPlaygroundAudio: null })
   }
 
-  const onSave = () => {
+  const save = () => {
     const target = {}
 
     const keys = ['id', 'use', 'name', 'volume', 'rate', 'when', 'offset', 'duration', 'codeInclued', 'codeExclude', 'codeMain']
@@ -94,10 +94,6 @@ function App() {
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
   }
 
-  const play = () => {
-    playAudioContext(source)
-  }
-
   const reset = () => {
     setSource({ ...source, ...Imitation.state.audio.find(i => i.id === source.id) })
   }
@@ -105,9 +101,9 @@ function App() {
   const init = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const audioSetting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.dialogAudioSetting.id)
+    const audioSetting = Imitation.state.audioSetting.find(i => i.id === Imitation.state.dialogPlaygroundAudio.id)
 
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogAudioSetting.id)))
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.find(i => i.id === Imitation.state.dialogPlaygroundAudio.id)))
 
     const source = await loadAudioBuffer(audio)
 
@@ -119,14 +115,14 @@ function App() {
   }
 
   React.useEffect(() => {
-    if (Imitation.state.dialogAudioSetting !== null) {
+    if (Imitation.state.dialogPlaygroundAudio !== null) {
       init()
     }
-  }, [Imitation.state.dialogAudioSetting])
+  }, [Imitation.state.dialogPlaygroundAudio])
 
   if (source === undefined) return null
 
-  return <Dialog open={Imitation.state.dialogAudioSetting !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => onClose()}>
+  return <Dialog open={Imitation.state.dialogPlaygroundAudio !== null} sx={{ '& .MuiDialog-paper': { width: '100%', maxWidth: 720 } }} onClose={() => close()}>
     <DialogTitle style={{ fontSize: 16 }}>Setting</DialogTitle>
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>
@@ -233,9 +229,9 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { onSave(); onClose(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { save(); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogAudioSetting, JSON.stringify(state.audioSetting), JSON.stringify(state.audio)])
+export default Imitation.withBindRender(App, state => [state.dialogPlaygroundAudio, JSON.stringify(state.audioSetting), JSON.stringify(state.audio)])

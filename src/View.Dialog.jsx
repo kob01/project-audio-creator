@@ -1,19 +1,19 @@
 import React from 'react'
 
 import GlobalSetting from './View.Dialog.GlobalSetting'
-import ConsoleRename from './View.Dialog.ConsoleRename'
-import AudioSetting from './View.Dialog.AudioSetting'
-import ConsoleAudioSetting from './View.Dialog.ConsoleAudioSetting'
+import PlaygroundAudio from './View.Dialog.PlaygroundAudio'
+import ConsoleAudio from './View.Dialog.ConsoleAudio'
+import ConsoleGroup from './View.Dialog.ConsoleGroup'
 import ConsoleTimeAlignment from './View.Dialog.ConsoleTimeAlignment'
 import Example from './View.Dialog.Example'
 import LocalStorage from './View.Dialog.LocalStorage'
 
 function App() {
   return <>
-    <ConsoleRename />
     <GlobalSetting />
-    <AudioSetting />
-    <ConsoleAudioSetting />
+    <PlaygroundAudio />
+    <ConsoleAudio />
+    <ConsoleGroup />
     <ConsoleTimeAlignment />
     <Example />
     <LocalStorage />
