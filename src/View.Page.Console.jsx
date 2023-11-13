@@ -438,14 +438,13 @@ function App() {
   }
 
   const moveTime = (changeX, changeY) => {
-    if (playing) return
-
     var time = currentTime + changeX * (maxTime - minTime) * 0.001
 
     if (time < 0) time = 0
     if (time > (maxTime - minTime)) time = maxTime - minTime
 
     setCurrentTime(time)
+    setPlaying()
   }
 
   const expand = () => {
