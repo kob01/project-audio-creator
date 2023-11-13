@@ -2,7 +2,7 @@ import audio from '../src-audio/index'
 
 import Imitation from 'imitation-imm/src/index'
 
-import example from '../src-example/偏爱sp.console.json'
+import example from '../src-example/偏爱.console.json'
 
 const ImitationINS = new Imitation()
 
