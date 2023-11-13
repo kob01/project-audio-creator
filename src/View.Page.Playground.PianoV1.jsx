@@ -180,7 +180,7 @@ function App() {
 
   const [scale, setScale] = React.useState(1)
   const [consoleFullScreen, setConsoleFullScreen] = React.useState(Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true)
-  const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'SimplePiano'))
+  const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'PianoV1'))
 
   React.useEffect(() => {
     const r = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
@@ -212,7 +212,7 @@ function App() {
   }, [consoleFullScreen])
 
   React.useEffect(async () => {
-    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'SimplePiano')))
+    const audio = JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'PianoV1')))
 
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 

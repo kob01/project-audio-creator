@@ -31,8 +31,8 @@ function App() {
     <Drawer anchor='left' open={Imitation.state.navigationDrawerExpand} onClose={() => Imitation.assignState({ navigationDrawerExpand: false })} sx={{ '& .MuiPaper-root': { width: 304, height: '100%' } }} >
       <div style={{ height: '100%', padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'auto' }}>
         <div>
-          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/SimplePiano' ? 'contained' : 'outlined'} onClick={() => { push('/SimplePiano'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Simple Piano</Button>
-          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/BassoonStacF1' ? 'contained' : 'outlined'} onClick={() => { push('/BassoonStacF1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Bassoon StacF1</Button>
+          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/PianoV1' ? 'contained' : 'outlined'} onClick={() => { push('/PianoV1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Piano V1</Button>
+          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/BassoonStacF1' ? 'contained' : 'outlined'} onClick={() => { push('/BassoonStacF1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Bassoon Stac F1</Button>
         </div>
 
         <div>

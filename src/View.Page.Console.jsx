@@ -231,6 +231,7 @@ function App() {
   const [source, setSource] = React.useState()
   const [sourceRender, setSourceRender] = React.useState()
   const [height, setHeight] = React.useState()
+  const [minTime, setMinTime] = React.useState()
   const [maxTime, setMaxTime] = React.useState()
   const [currentTime, setCurrentTime] = React.useState()
 
@@ -255,7 +256,7 @@ function App() {
       audioContextRef.current = undefined
     }
 
-    const currentTime_ = currentTime === maxTime ? 0 : currentTime
+    const currentTime_ = currentTime === (maxTime - minTime) ? 0 : currentTime
 
     const context = parseAudioContextMultiple(buffer)
 
@@ -272,7 +273,7 @@ function App() {
       var offset = i.source.offset
       var duration = i.source.duration
 
-      var when = when - currentTime_
+      var when = when - currentTime_ - minTime
 
       if (when < 0) {
         offset = offset - when
@@ -286,7 +287,7 @@ function App() {
         currentLength = currentLength + 1
 
         if (currentLength === maxLength) {
-          setCurrentTime(maxTime)
+          setCurrentTime(maxTime - minTime)
 
           if (audioContextRef.current !== undefined) {
             audioContextRef.current.audioContext.close()
@@ -413,7 +414,7 @@ function App() {
 
     const min = current.when
 
-    const minChangeX = Math.max(changeX * maxTime * 0.001, -min)
+    const minChangeX = Math.max(changeX * (maxTime - minTime) * 0.001, -min)
 
     current.when = Math.max(current.when + minChangeX, 0)
 
@@ -425,7 +426,7 @@ function App() {
 
     const min = Math.min(...current.group.map(i => i.when))
 
-    const minChangeX = Math.max(changeX * maxTime * 0.001, -min)
+    const minChangeX = Math.max(changeX * (maxTime - minTime) * 0.001, -min)
 
     current.group.forEach(source => {
       const current = Imitation.state.console.reduce((t, i) => [...t, ...i.group], []).find(i => i.hash === source.hash)
@@ -437,10 +438,10 @@ function App() {
   }
 
   const moveTime = (changeX, changeY) => {
-    var time = currentTime + changeX * maxTime * 0.001
+    var time = currentTime + changeX * (maxTime - minTime) * 0.001
 
     if (time < 0) time = 0
-    if (time > maxTime) time = maxTime
+    if (time > (maxTime - minTime)) time = maxTime - minTime
 
     setCurrentTime(time)
   }
@@ -504,8 +505,10 @@ function App() {
     if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? source.push(...i.group) : null)
 
     const r = source.length > 0 ? Math.max(...source.map((i) => i.when + i.duration / i.rate)) : 0
+    const r_ = source.length > 0 ? Math.min(...source.map((i) => i.when)) : 0
 
     setMaxTime(r)
+    setMinTime(r_)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
 
   React.useEffect(() => {
@@ -613,7 +616,7 @@ function App() {
                       return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudio: i }); if (Imitation.state.consoleCurrent === null) Imitation.assignState({ dialogConsoleGroup: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
                         {
                           (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= i.when && currentTime <= i.when + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / maxTime * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${i.when / maxTime * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= (i.when - minTime) && currentTime <= (i.when - minTime) + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / (maxTime - minTime) * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${(i.when - minTime) / (maxTime - minTime) * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
                           }
                         }
                       </ControlSource>
@@ -644,12 +647,13 @@ function App() {
               </div>
 
               {
-                maxTime !== undefined ?
+                minTime !== undefined && maxTime !== undefined ?
                   <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {
+                        console.log(minTime)
                         return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
-                          <div style={{ whiteSpace: 'nowrap' }}>{Number(index * maxTime / 10).toFixed(2)}</div>
+                          <div style={{ whiteSpace: 'nowrap' }}>{Number(minTime + index * (maxTime - minTime) / 10).toFixed(2)}</div>
                         </div>
                       })
                     }
@@ -660,7 +664,7 @@ function App() {
 
             {
               buffer !== undefined && currentTime !== undefined ?
-                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 3, left: `calc(${currentTime / maxTime * 100}% - ${currentTime / maxTime * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
+                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 3, left: `calc(${currentTime / (maxTime - minTime) * 100}% - ${currentTime / (maxTime - minTime) * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
                   <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
                     {
                       (event, active) => {

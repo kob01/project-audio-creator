@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router-dom'
 import Imitation from './utils.imitation'
 
 const Default = React.lazy(() => import('./View.Page.Default'))
-const SimplePiano = React.lazy(() => import('./View.Page.Playground.SimplePiano'))
+const PianoV1 = React.lazy(() => import('./View.Page.Playground.PianoV1'))
 const BassoonStacF1 = React.lazy(() => import('./View.Page.Playground.BassoonStacF1'))
 
 function SuspenseLoading() {
@@ -22,7 +22,7 @@ function App() {
   return <>
     <Switch>
       <Route path={'/'} exact><React.Suspense fallback={<SuspenseLoading />} children={<Default />} /></Route>
-      <Route path={'/SimplePiano'} exact><React.Suspense fallback={<SuspenseLoading />} children={<SimplePiano />} /></Route>
+      <Route path={'/PianoV1'} exact><React.Suspense fallback={<SuspenseLoading />} children={<PianoV1 />} /></Route>
       <Route path={'/BassoonStacF1'} exact><React.Suspense fallback={<SuspenseLoading />} children={<BassoonStacF1 />} /></Route>
     </Switch>
   </>
