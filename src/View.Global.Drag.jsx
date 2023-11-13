@@ -103,7 +103,7 @@ function App() {
 
   if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
 
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: 36, height: 36, position: 'absolute', zIndex: 3, left: position[0] - 18, top: position[1] - 18, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
+  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: 36, height: 36, position: 'absolute', zIndex: 103, left: position[0] - 18, top: position[1] - 18, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
 }
 
 export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleContainerRef, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent)])

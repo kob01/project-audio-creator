@@ -59,11 +59,11 @@ function App() {
     const current = Imitation.state.console.find(i => i.hash === Imitation.state.dialogConsoleGroup.hash)
 
     const name = current.name
-    // const use = current.group.some(i => i.use === true)
-    // const volume = current.group.reduce((t, i) => t + i.volume, 0) / current.group.length
+    const use = current.group.length > 0 && current.group.every(i => i.use === current.group[0].use) ? current.group[0].use : undefined
+    const volume = current.group.length > 0 && current.group.every(i => i.volume === current.group[0].volume) ? current.group[0].volume : undefined
     const when = Math.min(...current.group.map(i => i.when))
 
-    setGroup({ name, when })
+    setGroup({ name, use, volume, when })
   }
 
   React.useEffect(() => {

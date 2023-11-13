@@ -2,7 +2,7 @@ import audio from '../src-audio/index'
 
 import Imitation from 'imitation-imm/src/index'
 
-import example from '../src-example/偏爱.console.json'
+// import example from '../src-example/偏爱.console.json'
 
 const ImitationINS = new Imitation()
 
@@ -31,11 +31,12 @@ ImitationINS.state = {
 
   audioSetting: [],
 
-  globalSetting: { volume: 0, scale: 1 },
+  globalSetting: { volume: 1, scale: 1 },
 
-  console: example.console,
+  console: [],
+  // console: example.console,
 
-  consoleExpand: true,
+  consoleExpand: false,
 
   consoleCurrent: null,
 

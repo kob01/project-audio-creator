@@ -43,6 +43,12 @@ function App() {
     navigator.clipboard.writeText(JSON.stringify(r)).then(res => Imitation.assignState({ message: 'Copy' }))
   }
 
+  const copy_console = () => {
+    const r = Imitation.state.console
+
+    navigator.clipboard.writeText(JSON.stringify(r)).then(res => Imitation.assignState({ message: 'Copy' }))
+  }
+
   React.useEffect(() => {
     if (Imitation.state.dialogLocalStorage !== null) {
 
@@ -61,6 +67,7 @@ function App() {
       </Grid>
     </DialogContent>
     <DialogActions>
+      <Button variant='contained' onClick={() => copy_console()}>Copy Console</Button>
       <Button variant='contained' onClick={() => copy()}>Copy</Button>
       <Button variant='contained' onClick={() => save()}>Save</Button>
       <Button variant='contained' onClick={() => load()}>Load</Button>

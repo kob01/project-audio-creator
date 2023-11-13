@@ -523,7 +523,7 @@ function App() {
     var r_ = []
 
     if (Imitation.state.consoleCurrent === null) {
-      Imitation.state.console.forEach(i => r_.push({ ...i }))
+      Imitation.state.console.filter(i => i.group.length > 0).forEach(i => r_.push({ ...i }))
 
       r_.forEach(i => {
         i.when = Math.min(...i.group.map(i => i.when))
@@ -554,7 +554,7 @@ function App() {
     setSourceRender(r_)
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), JSON.stringify(Imitation.state.audioSetting), JSON.stringify(Imitation.state.audio)])
 
-  return <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+  return <div style={{ position: 'relative', zIndex: 100, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
     <div style={{ position: 'relative', margin: 'auto', width: 'calc(100% - 32px)', height: Imitation.state.consoleExpand ? height : 0, marginBottom: Imitation.state.consoleExpand ? 16 : 0, boxShadow: '0 4px 8px gray', borderRadius: 12, overflow: 'hidden', opacity: Imitation.state.consoleExpand ? 1 : 0, transition: '0.5s all' }}>
       <div style={{ position: 'absolute', width: '100%', height: height, bottom: 0, left: 0, display: 'flex', padding: 16, background: '#ffffff', transition: '0.5s all' }} ref={el => Imitation.state.consoleContainerRef = el}>
@@ -628,7 +628,7 @@ function App() {
                 : null
             }
 
-            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 2, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
+            <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 101, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
 
               <div style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -665,7 +665,7 @@ function App() {
 
             {
               buffer !== undefined && currentTime !== undefined ?
-                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 3, left: `calc(${currentTime / (maxTime - minTime) * 100}% - ${currentTime / (maxTime - minTime) * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
+                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 102, left: `calc(${currentTime / (maxTime - minTime) * 100}% - ${currentTime / (maxTime - minTime) * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
                   <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
                     {
                       (event, active) => {

@@ -18,13 +18,13 @@ function App() {
   const pathname = useLocation().pathname
 
   return <>
-    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 4, top: 16, left: 16, transition: '0.5s all' }} variant='contained' onClick={() => { push('/'); }}>
+    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 1000, top: 16, left: 16, transition: '0.5s all' }} variant='contained' onClick={() => { push('/'); }}>
       Audio Creator
     </Animation>
-    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 4, top: 16, right: 16, transition: '0.5s all' }} variant='outlined' onClick={() => Imitation.assignState({ navigationDrawerExpand: true })}>
+    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 1000, top: 16, right: 16, transition: '0.5s all' }} variant='outlined' onClick={() => Imitation.assignState({ navigationDrawerExpand: true })}>
       <MenuIcon style={{ marginRight: 4 }} />APP
     </Animation>
-    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 4, top: 16, right: 110, transition: '0.5s all' }} variant={Imitation.state.globalSetting.volume !== 0 ? 'contained' : 'outlined'} onClick={() => { Imitation.state.globalSetting.volume = Imitation.state.globalSetting.volume === 0 ? 1 : 0; Imitation.dispatch() }}>
+    <Animation tag={Button} restore={true} animation={[{ transform: 'translate(0, -30px)', opacity: 0 }, { transform: 'translate(0, 0)', opacity: 1 }]} style={{ position: 'absolute', zIndex: 1000, top: 16, right: 110, transition: '0.5s all' }} variant={Imitation.state.globalSetting.volume !== 0 ? 'contained' : 'outlined'} onClick={() => { Imitation.state.globalSetting.volume = Imitation.state.globalSetting.volume === 0 ? 1 : 0; Imitation.dispatch() }}>
       <VolumeMuteIcon style={{ marginRight: 4 }} />
     </Animation>
 
@@ -32,6 +32,7 @@ function App() {
       <div style={{ height: '100%', padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'auto' }}>
         <div>
           <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/PianoV1' ? 'contained' : 'outlined'} onClick={() => { push('/PianoV1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Piano V1</Button>
+          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/PianoV1M1' ? 'contained' : 'outlined'} onClick={() => { push('/PianoV1M1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Piano V1 M1</Button>
           <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/BassoonStacF1' ? 'contained' : 'outlined'} onClick={() => { push('/BassoonStacF1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Bassoon Stac F1</Button>
         </div>
 

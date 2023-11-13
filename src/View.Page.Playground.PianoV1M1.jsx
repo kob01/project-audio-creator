@@ -1,11 +1,7 @@
 import React from 'react'
 
-import Grid from '@mui/material/Grid'
 import Slider from '@mui/material/Slider'
 import Button from '@mui/material/Button'
-
-import SettingsIcon from '@mui/icons-material/Settings'
-import SaveIcon from '@mui/icons-material/Save'
 
 import Animation from './View.Component.Animation'
 
@@ -40,12 +36,6 @@ function ConsoleButton(props) {
   }
 
   const keydown = (e) => {
-    if (props.setting == true) return
-
-    if (use === false) return
-
-    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
-
     if (codePress.includes(e.code)) return
 
     const result = [...codePress, e.code]
@@ -56,21 +46,12 @@ function ConsoleButton(props) {
   }
 
   const keyup = (e) => {
-    if (props.setting == true) return
-
-    if (use === false) return
-
-    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
-
     const result = codePress.filter(i => !i.includes(e.code))
 
     setCodePress(result)
   }
 
   const onMouseDown = (e) => {
-    console.log(props.setting)
-    if (props.setting == true) return
-
     if (e.button !== 0) return
 
     if (use === true) play()
@@ -81,16 +62,12 @@ function ConsoleButton(props) {
   }
 
   const onMouseMove = (e) => {
-    if (props.setting == true) return
-
     if (mouseDownRef.current === true && Imitation.state.dragTarget === null) Imitation.assignState({ dragTarget: props.source })
 
     clearInterval(mouseTimeRef.current)
   }
 
   const onMouseUp = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
 
     mouseDownRef.current = undefined
@@ -99,8 +76,6 @@ function ConsoleButton(props) {
   }
 
   const onTouchStart = (e) => {
-    if (props.setting == true) return
-
     if (use === true) play()
 
     mouseDownRef.current = true
@@ -109,16 +84,12 @@ function ConsoleButton(props) {
   }
 
   const onTouchMove = (e) => {
-    if (props.setting == true) return
-
     if (mouseDownRef.current === true && Imitation.state.dragTarget === null) Imitation.assignState({ dragTarget: props.source })
 
     clearInterval(mouseTimeRef.current)
   }
 
   const onTouchEnd = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ dragTarget: null })
 
     mouseDownRef.current = undefined
@@ -127,8 +98,6 @@ function ConsoleButton(props) {
   }
 
   const onContextMenu = (e) => {
-    if (props.setting == true) return
-
     e.preventDefault()
 
     Imitation.setState(pre => { pre.dialogPlaygroundAudio = props.source; return pre })
@@ -185,9 +154,13 @@ function ConsoleButton(props) {
         window.removeEventListener('touchend', onTouchEnd)
       }
     }
-  }, [props.setting, props.source])
+  }, [])
 
   React.useEffect(() => {
+    if (use === false) return
+
+    if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
+
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
 
@@ -195,7 +168,7 @@ function ConsoleButton(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.setting, props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogExample, Imitation.state.dialogLocalStorage, Imitation.state.dialogConsoleTimeAlignment, Imitation.state.dialogPlaygroundAudio, Imitation.state.dialogConsoleAudio, Imitation.state.dialogConsoleGroup])
+  }, [props.source, codePress, Imitation.state.dialogGlobalSetting, Imitation.state.dialogExample, Imitation.state.dialogLocalStorage, Imitation.state.dialogConsoleTimeAlignment, Imitation.state.dialogPlaygroundAudio, Imitation.state.dialogConsoleAudio, Imitation.state.dialogConsoleGroup])
 
   return <Button variant={variant} style={style} {...event}>{name}</Button>
 }
@@ -205,10 +178,11 @@ function App() {
   const contentRef = React.useRef()
   const timeoutRef = React.useRef()
 
-  const [setting, setSetting] = React.useState(false)
   const [scale, setScale] = React.useState(1)
   const [consoleFullScreen, setConsoleFullScreen] = React.useState(Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true)
   const [audioSource, setAudioSource] = React.useState(Imitation.state.audio.filter(i => i._id === 'PianoV1'))
+  const [left, setLeft] = React.useState([0,4])
+  const [right, setRight] = React.useState([5,8])
 
   React.useEffect(() => {
     const r = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
@@ -222,7 +196,7 @@ function App() {
     const observer = new ResizeObserver(() => {
       const event = () => {
         const widthRate = (containerRef.current.offsetWidth - 32) / contentRef.current.offsetWidth
-        const heightRate = (containerRef.current.offsetHeight - 136) / contentRef.current.offsetHeight
+        const heightRate = (containerRef.current.offsetHeight - 135) / contentRef.current.offsetHeight
 
         const rate = Math.min(widthRate, heightRate, 1)
 
@@ -270,33 +244,23 @@ function App() {
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref={el => containerRef.current = el}>
 
-    <div style={{ position: 'relative', zIndex: setting ? 1 : 3, height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', opacity: setting ? 0.2 : 1, transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
+    <div style={{ height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {
         ['0', '1', '2', '3', '4', '5', '6', '7', '8'].map((i, index) => {
           return <div key={index} style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
             {
-              audioSource.filter(i_ => i_.id.split('.')[1].includes(i)).map((i, index) => <ConsoleButton key={index} source={i} setting={setting} />)
+              audioSource.filter(i_ => i_.id.split('.')[1].includes(i)).map((i, index) => <ConsoleButton key={index} source={i} />)
             }
           </div>
         })
       }
     </div>
 
-    <Grid container spacing={1} style={{ position: 'absolute', zIndex: setting ? 3 : 1, width: 'calc(100% - 32px)', maxWidth: 600, height: 'fit-content', fontSize: 14, flexShrink: 0, opacity: setting ? 1 : 0, transition: '0.5s all' }}>
-      <Grid item xs={12}>
-        Scale<span style={{ outline: 'none', marginLeft: 8 }} contentEditable='true' onBlur={e => isNaN(e.target.innerText) ? e.target.innerText = scale : setScale(e.target.innerText)}>{scale}</span>
-      </Grid>
-      <Grid item xs={12}>
-        <Slider value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
-      </Grid>
-      <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => setSetting(false)}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
-      </Grid>
-    </Grid>
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, width: 600, maxWidth: 'calc(100% - 32px)' }} value={left} onChange={(e, v) => { setLeft(v) }} min={0} max={2} step={0.1} />
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
-    <div style={{ position: 'absolute', zIndex: 2, width: '100%', height: '100%', top: 0, left: 0 }}></div>
 
-    <Button variant='text' style={{ position: 'absolute', zIndex: 4, bottom: 16 }} onClick={() => setSetting(pre => !pre)}><SettingsIcon /></Button>
+    <Slider style={{ position: 'absolute', zIndex: 2, bottom: 16, width: 600, maxWidth: 'calc(100% - 32px)' }} value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
 
   </Animation>
 }
