@@ -10,13 +10,15 @@ import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 
 import Imitation from './utils.imitation'
-import { AutocompleteSX } from './utils.mui.sx'
+import { AutocompleteSX, TextFieldSX } from './utils.mui.sx'
 
 import example from '../src-example/index'
 
 function App() {
+  const [consoleFilter, setConsoleFilter] = React.useState('')
   const [console, setConsole] = React.useState()
   const [consoles] = React.useState(example.filter(i => i.type === 'console').map(i => i.label))
+  const [settingFilter, setSettingFilter] = React.useState('')
   const [setting, setSetting] = React.useState()
   const [settings] = React.useState(example.filter(i => i.type === 'setting').map(i => i.label))
 
@@ -56,12 +58,28 @@ function App() {
     <DialogContent dividers style={{ fontSize: 14 }}>
       <Grid container spacing={1}>
 
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <Autocomplete {...AutocompleteSX} fullWidth value={console} onChange={(e, v) => setConsole(v)} options={consoles} renderInput={(params) => <TextField {...params} label='Console' />} />
+        <Grid item xs={12}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Console' value={consoleFilter} onChange={e => setConsoleFilter(e.target.value)} />
         </Grid>
 
-        <Grid item xs={12} style={{ marginBottom: 8 }}>
-          <Autocomplete {...AutocompleteSX} fullWidth value={console} onChange={(e, v) => setSetting(v)} options={settings} renderInput={(params) => <TextField {...params} label='Setting' />} />
+        <Grid item xs={12} style={{ display: 'flex', overflowX: 'auto' }}>
+          {
+            consoles.filter(i => i.includes(consoleFilter)).map(i => {
+              return <Button key={i} style={{ margin: '0 4px', flexShrink: 0 }} variant={console === i ? 'contained' : 'outlined'} onClick={() => setConsole(console === i ? undefined : i)}>{i}</Button>
+            })
+          }
+        </Grid>
+
+        <Grid item xs={12}>
+          <TextField {...TextFieldSX} fullWidth autoComplete='off' label='Setting' value={settingFilter} onChange={e => setSettingFilter(e.target.value)} />
+        </Grid>
+
+        <Grid item xs={12} style={{ display: 'flex', overflowX: 'auto' }}>
+          {
+            settings.filter(i => i.includes(settingFilter)).map(i => {
+              return <Button key={i} style={{ margin: '0 4px', flexShrink: 0 }} variant={setting === i ? 'contained' : 'outlined'} onClick={() => setSettingFilter(setting === i ? undefined : i)}>{i}</Button>
+            })
+          }
         </Grid>
 
       </Grid>

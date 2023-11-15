@@ -10,7 +10,7 @@ function App() {
   const viewRef = React.useRef([])
 
   const loop = () => {
-    if (Imitation.state.useCanvasAnimation === false) return
+    if (Imitation.state.canvasAnimationUse === false) return
 
     requestAnimationFrame(() => {
       const context = canvasRef.current.getContext('2d')
@@ -45,10 +45,10 @@ function App() {
   }
 
   React.useEffect(() => {
-    if (Imitation.state.useCanvasAnimation === true) {
+    if (Imitation.state.canvasAnimationUse === true) {
       loop()
     }
-  }, [Imitation.state.useCanvasAnimation])
+  }, [Imitation.state.canvasAnimationUse])
 
   React.useEffect(() => {
     fetch(`https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F0f5476c4-c3f9-4dfc-97ff-81df8bcc4572%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1701858544&t=592cf9be04636c20ef54e1bf18707088`)
@@ -61,7 +61,7 @@ function App() {
   }, [])
 
   React.useEffect(() => {
-    if (Imitation.state.canvasAnimation === 0 || Imitation.state.useCanvasAnimation === false) return
+    if (Imitation.state.canvasAnimation === 0 || Imitation.state.canvasAnimationUse === false) return
 
     const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 

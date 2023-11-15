@@ -16,7 +16,7 @@ import AlignVerticalCenterIcon from '@mui/icons-material/AlignVerticalCenter'
 import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter'
 
 import Imitation from './utils.imitation'
-import { hash } from './utils.common'
+import { hash, getResizePageRate } from './utils.common'
 import { loadAudioBuffer, parseAudioContextMultiple } from './utils.audio'
 
 import Animation from './View.Component.Animation'
@@ -48,7 +48,7 @@ function ControlTime(props) {
 
     mouseDownRef.current = [x, y]
 
-    props.onMove(changeX, changeY)
+    props.onMove(changeX / getResizePageRate(), changeY / getResizePageRate())
   }
 
   const onMouseUp = (e) => {
@@ -77,7 +77,7 @@ function ControlTime(props) {
 
     mouseDownRef.current = [x, y]
 
-    props.onMove(changeX, changeY)
+    props.onMove(changeX / getResizePageRate(), changeY / getResizePageRate())
   }
 
   const onTouchEnd = (e) => {
@@ -142,7 +142,7 @@ function ControlSource(props) {
 
     mouseDownRef.current = [x, y]
 
-    props.onMove(changeX, changeY)
+    props.onMove(changeX / getResizePageRate(), changeY / getResizePageRate())
 
     clearInterval(mouseTimeRef.current)
   }
@@ -173,7 +173,7 @@ function ControlSource(props) {
 
     mouseDownRef.current = [x, y]
 
-    props.onMove(changeX, changeY)
+    props.onMove(changeX / getResizePageRate(), changeY / getResizePageRate())
 
     clearInterval(mouseTimeRef.current)
   }
@@ -457,7 +457,7 @@ function App() {
 
   React.useEffect(() => {
     const resize = () => {
-      const r = Imitation.state.consoleFullScreen ? window.innerHeight - 136 : 300
+      const r = Imitation.state.consoleFullScreen ? window.innerHeight / getResizePageRate() - 136 : 300
 
       setHeight(r)
     }
@@ -474,17 +474,34 @@ function App() {
   React.useEffect(() => {
     if (playing === undefined) return
 
-    const loop = () => {
-      currentTimeIdleRef.current = requestIdleCallback(() => {
-        setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
-        loop()
-      })
+    if (window.requestIdleCallback) {
+      const loop = () => {
+        currentTimeIdleRef.current = requestIdleCallback(() => {
+          if (audioContextRef.current) setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
+          loop()
+        })
+      }
+
+      loop()
+
+      return () => {
+        cancelIdleCallback(currentTimeIdleRef.current)
+      }
     }
 
-    loop()
+    if (!window.requestIdleCallback) {
+      const loop = () => {
+        currentTimeIdleRef.current = requestAnimationFrame(() => {
+          if (audioContextRef.current) setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
+          loop()
+        })
+      }
 
-    return () => {
-      cancelIdleCallback(currentTimeIdleRef.current)
+      loop()
+
+      return () => {
+        cancelAnimationFrame(currentTimeIdleRef.current)
+      }
     }
   }, [playing])
 
@@ -556,7 +573,7 @@ function App() {
 
   return <div style={{ position: 'relative', zIndex: 100, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
-    <div style={{ position: 'relative', margin: 'auto', width: 'calc(100% - 32px)', height: Imitation.state.consoleExpand ? height : 0, marginBottom: Imitation.state.consoleExpand ? 16 : 0, boxShadow: '0 4px 8px gray', borderRadius: 12, overflow: 'hidden', opacity: Imitation.state.consoleExpand ? 1 : 0, transition: '0.5s all' }}>
+    <div style={{ position: 'relative', margin: 'auto', width: 'calc(100% - 32px)', maxWidth: Imitation.state.consoleFullScreen ? 'calc(100% - 32px)' : 1600, height: Imitation.state.consoleExpand ? height : 0, marginBottom: Imitation.state.consoleExpand ? 16 : 0, boxShadow: '0 4px 8px gray', borderRadius: 12, overflow: 'hidden', opacity: Imitation.state.consoleExpand ? 1 : 0, transition: '0.5s all' }}>
       <div style={{ position: 'absolute', width: '100%', height: height, bottom: 0, left: 0, display: 'flex', padding: 16, background: '#ffffff', transition: '0.5s all' }} ref={el => Imitation.state.consoleContainerRef = el}>
 
         <div style={{ width: 'fit-content', height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
@@ -606,7 +623,7 @@ function App() {
             : null
         }
 
-        <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 16px 8px 16px' }}>
+        <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 16px 8px 32px' }}>
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
             {
@@ -652,7 +669,6 @@ function App() {
                   <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {
-                        console.log(minTime)
                         return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
                           <div style={{ whiteSpace: 'nowrap' }}>{Number(minTime + index * (maxTime - minTime) / 10).toFixed(2)}</div>
                         </div>
@@ -688,7 +704,7 @@ function App() {
 
     <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: 'fit-content', marginBottom: 16, transition: '0.5s all' }} variant='contained' onClick={() => expand()}>Expand Console</Animation>
 
-  </div>
+  </div >
 }
 
 export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])

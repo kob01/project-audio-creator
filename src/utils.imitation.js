@@ -19,7 +19,7 @@ ImitationINS.state = {
 
   message: null,
 
-  useCanvasAnimation: true,
+  canvasAnimationUse: true,
 
   canvasAnimation: 0,
 
@@ -29,12 +29,14 @@ ImitationINS.state = {
 
   audio: audio,
 
+  audioCustom: [],
+
   audioSetting: [],
 
   globalSetting: { volume: 1, scale: 1 },
 
   console: [],
-  // console: example.console,
+  // console: example,
 
   consoleExpand: false,
 
@@ -49,9 +51,9 @@ ImitationINS.state = {
   dialogPlaygroundAudio: null,
 
   dialogConsoleTimeAlignment: null,
-  
+
   dialogConsoleAudio: null,
-  
+
   dialogConsoleGroup: null,
 
   dialogExample: null,

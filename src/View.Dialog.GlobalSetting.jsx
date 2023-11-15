@@ -23,12 +23,12 @@ function App() {
   }
 
   React.useEffect(() => {
-    var r = { globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme, useCanvasAnimation: Imitation.state.useCanvasAnimation }
+    var r = { globalSetting: Imitation.state.globalSetting, theme: Imitation.state.theme, canvasAnimationUse: Imitation.state.canvasAnimationUse }
 
     r = JSON.parse(JSON.stringify(r))
 
     setValue(r)
-  }, [Imitation.state.globalSetting, Imitation.state.theme, Imitation.state.useCanvasAnimation])
+  }, [Imitation.state.globalSetting, Imitation.state.theme, Imitation.state.canvasAnimationUse])
 
   if (value === undefined) return null
 
@@ -56,15 +56,15 @@ function App() {
         </Grid>
 
         <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-          <Button style={{ margin: '0 8px' }} variant='contained' color={value.useCanvasAnimation ? 'primary' : 'inherit'} onClick={(e) => { value.useCanvasAnimation = !value.useCanvasAnimation; setValue({ ...value }) }}><ImageIcon style={{ marginRight: 4 }} />Canvas Animation</Button>
+          <Button style={{ margin: '0 8px' }} variant='contained' color={value.canvasAnimationUse ? 'primary' : 'inherit'} onClick={(e) => { value.canvasAnimationUse = !value.canvasAnimationUse; setValue({ ...value }) }}><ImageIcon style={{ marginRight: 4 }} />Canvas Animation</Button>
         </Grid>
 
       </Grid>
     </DialogContent>
     <DialogActions>
-      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme, useCanvasAnimation: value.useCanvasAnimation }); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
+      <Button variant='contained' onClick={() => { Imitation.assignState({ globalSetting: value.globalSetting, theme: value.theme, canvasAnimationUse: value.canvasAnimationUse }); close(); }}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
     </DialogActions>
   </Dialog>
 }
 
-export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.useCanvasAnimation, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.dialogGlobalSetting, state.canvasAnimationUse, JSON.stringify(state.globalSetting), JSON.stringify(state.theme)])

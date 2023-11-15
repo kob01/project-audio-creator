@@ -14,16 +14,14 @@ import Page from './View.Page'
 import PageConsole from './View.Page.Console'
 
 import Imitation from './utils.imitation'
+import { resizePage } from './utils.common'
 
 function App() {
 
   React.useEffect(() => {
     const resize = () => {
-      if (window.ontouchstart !== undefined) return
-      if (window.innerWidth < 2000 || window.innerHeight < 1000) Imitation.assignState({ message: `suggest 'ctrl -' to zoom out screen` })
+      resizePage()
     }
-
-    resize()
 
     window.addEventListener('resize', resize)
 

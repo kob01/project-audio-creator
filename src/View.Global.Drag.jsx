@@ -7,7 +7,7 @@ import MusicNoteIcon from '@mui/icons-material/MusicNote'
 import Animation from './View.Component.Animation'
 
 import Imitation from './utils.imitation'
-import { hash } from './utils.common'
+import { hash, getResizePageRate } from './utils.common'
 
 function App() {
   const [position, setPosition] = React.useState([0, 0])
@@ -15,8 +15,8 @@ function App() {
   const [contentRect, setContentRect] = React.useState()
 
   const onMouseMove = e => {
-    const x = e.pageX
-    const y = e.pageY
+    const x = e.pageX / getResizePageRate()
+    const y = e.pageY / getResizePageRate()
     setPosition([x, y])
   }
 
@@ -35,8 +35,8 @@ function App() {
   }
 
   const onTouchMove = e => {
-    const x = e.targetTouches[0].pageX
-    const y = e.targetTouches[0].pageY
+    const x = e.targetTouches[0].pageX / getResizePageRate()
+    const y = e.targetTouches[0].pageY / getResizePageRate()
     setPosition([x, y])
   }
 
@@ -59,7 +59,6 @@ function App() {
       window.addEventListener('mouseup', onMouseUp)
 
       return () => {
-        console.log(1)
         window.removeEventListener('mousemove', onMouseMove)
         window.removeEventListener('mouseup', onMouseUp)
       }
@@ -96,14 +95,14 @@ function App() {
 
     if (contentRect === undefined) return
 
-    const r = position[0] > contentRect.left && position[0] < contentRect.right && position[1] > contentRect.top && position[1] < contentRect.bottom
+    const r = position[0] > contentRect.left / getResizePageRate() && position[0] < contentRect.right / getResizePageRate() && position[1] > contentRect.top / getResizePageRate() && position[1] < contentRect.bottom / getResizePageRate()
 
     setIntersection(r)
   }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, position, contentRect])
 
   if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
 
-  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: 36, height: 36, position: 'absolute', zIndex: 103, left: position[0] - 18, top: position[1] - 18, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
+  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: '2.25rem', height: '2.25rem', position: 'absolute', zIndex: 103, left: position[0] - 16, top: position[1] - 16, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
 }
 
 export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleContainerRef, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent)])
