@@ -42,7 +42,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|jpg|jpeg|gif|mp3|m4a|wav)$/i,
+        test: /\.(png|jpg|jpeg|gif|mp3|m4a|wav|aif)$/i,
         use: [
           {
             loader: 'file-loader',

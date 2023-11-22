@@ -94,6 +94,10 @@ function App() {
     Imitation.assignState({ audioSetting: [...Imitation.state.audioSetting] })
   }
 
+  const play = () => {
+    playAudioContext(source)
+  }
+
   const reset = () => {
     setSource({ ...source, ...Imitation.state.audio.find(i => i.id === source.id) })
   }

@@ -35,6 +35,8 @@ function App() {
         <div>
           <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/PianoV1' ? 'contained' : 'outlined'} onClick={() => { push('/PianoV1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Piano V1</Button>
           <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/BassoonStacF1' ? 'contained' : 'outlined'} onClick={() => { push('/BassoonStacF1'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Bassoon Stac F1</Button>
+          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/ClassicalChoirFemale' ? 'contained' : 'outlined'} onClick={() => { push('/ClassicalChoirFemale'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Classical Choir Female</Button>
+          <Button style={{ marginBottom: 4, justifyContent: 'start' }} fullWidth variant={pathname === '/ClassicalChoirMale' ? 'contained' : 'outlined'} onClick={() => { push('/ClassicalChoirMale'); Imitation.assignState({ navigationDrawerExpand: false }); }}><MusicNoteIcon style={{ marginRight: 4 }} />Classical Choir Male</Button>
         </div>
 
         <div>

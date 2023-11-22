@@ -22,15 +22,15 @@ function App() {
 
   const onMouseUp = e => {
     if (intersection === true) {
-      const dragTarget = Imitation.state.dragTarget
-      const item = { hash: hash(), id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
+      const audioDragTarget = Imitation.state.audioDragTarget
+      const item = { hash: hash(), id: audioDragTarget.id, use: true, volume: audioDragTarget.volume, when: audioDragTarget.when, offset: audioDragTarget.offset, duration: audioDragTarget.duration, rate: audioDragTarget.rate }
       Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group.push(item)
     }
 
     setPosition([0, 0])
     setIntersection(false)
 
-    Imitation.state.dragTarget = null
+    Imitation.state.audioDragTarget = null
     Imitation.dispatch()
   }
 
@@ -42,17 +42,17 @@ function App() {
 
   const onTouchEnd = e => {
     if (intersection === true) {
-      const dragTarget = Imitation.state.dragTarget
-      const item = { hash: hash(), id: dragTarget.id, use: true, volume: dragTarget.volume, when: dragTarget.when, offset: dragTarget.offset, duration: dragTarget.duration, rate: dragTarget.rate }
+      const audioDragTarget = Imitation.state.audioDragTarget
+      const item = { hash: hash(), id: audioDragTarget.id, use: true, volume: audioDragTarget.volume, when: audioDragTarget.when, offset: audioDragTarget.offset, duration: audioDragTarget.duration, rate: audioDragTarget.rate }
       Imitation.state.console.find(i => i.hash === Imitation.state.consoleCurrent.hash).group.push(item)
     }
 
-    Imitation.state.dragTarget = null
+    Imitation.state.audioDragTarget = null
     Imitation.dispatch()
   }
 
   React.useEffect(() => {
-    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
+    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.audioDragTarget === null) return null
 
     if (window.ontouchstart === undefined) {
       window.addEventListener('mousemove', onMouseMove)
@@ -74,10 +74,10 @@ function App() {
       }
     }
 
-  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, intersection])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.audioDragTarget, intersection])
 
   React.useEffect(() => {
-    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
+    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.audioDragTarget === null) return null
 
     if (Imitation.state.consoleContainerRef === null) return
 
@@ -88,21 +88,21 @@ function App() {
     observer.observe(Imitation.state.consoleContainerRef)
 
     return () => observer.disconnect()
-  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, Imitation.state.consoleContainerRef])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.audioDragTarget, Imitation.state.consoleContainerRef])
 
   React.useEffect(() => {
-    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
+    if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.audioDragTarget === null) return null
 
     if (contentRect === undefined) return
 
     const r = position[0] > contentRect.left / getResizePageRate() && position[0] < contentRect.right / getResizePageRate() && position[1] > contentRect.top / getResizePageRate() && position[1] < contentRect.bottom / getResizePageRate()
 
     setIntersection(r)
-  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.dragTarget, position, contentRect])
+  }, [Imitation.state.consoleExpand, Imitation.state.consoleCurrent, Imitation.state.audioDragTarget, position, contentRect])
 
-  if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.dragTarget === null) return null
+  if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null || Imitation.state.audioDragTarget === null) return null
 
   return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} variant={intersection ? 'contained' : 'outlined'} style={{ minWidth: 0, width: '2.25rem', height: '2.25rem', position: 'absolute', zIndex: 103, left: position[0] - 16, top: position[1] - 16, transitionDuration: '0.5s', transitionProperty: 'opacity, color, background' }}><MusicNoteIcon /></Animation >
 }
 
-export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleContainerRef, JSON.stringify(state.dragTarget), JSON.stringify(state.consoleCurrent)])
+export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleContainerRef, JSON.stringify(state.audioDragTarget), JSON.stringify(state.consoleCurrent)])

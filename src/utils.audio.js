@@ -5,13 +5,15 @@ const AudioContext_ = window.AudioContext || window.webkitAudioContext
 const loadAudioBuffer = async (source) => {
   const parse = async (source) => {
     return new Promise(async r => {
+      if (source.audioBuffer !== undefined) { r(source); return; }
+
       const blob = await fetch(source.src).then(res => res.blob())
 
-      const dataUrl = await new Promise(r => {
-        const reader = new FileReader()
-        reader.onload = (event) => r(event.target.result)
-        reader.readAsDataURL(blob)
-      })
+      // const dataUrl = await new Promise(r => {
+      //   const reader = new FileReader()
+      //   reader.onload = (event) => r(event.target.result)
+      //   reader.readAsDataURL(blob)
+      // })
 
       const arrayBuffer = await new Promise(r => {
         const reader = new FileReader()
@@ -19,22 +21,12 @@ const loadAudioBuffer = async (source) => {
         reader.readAsArrayBuffer(blob)
       })
 
-      const arrayBuffer_ = await new Promise(r => {
-        const reader = new FileReader()
-        reader.onload = (event) => r(event.target.result)
-        reader.readAsArrayBuffer(blob)
-      })
-
       const audioBuffer = await new Promise(async r => {
         const audioContext = new AudioContext_()
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer_)
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
         r(audioBuffer)
         audioContext.close()
       })
-
-      source.dataUrl = dataUrl
-
-      source.arrayBuffer = arrayBuffer
 
       source.audioBuffer = audioBuffer
 

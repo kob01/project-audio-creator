@@ -707,4 +707,4 @@ function App() {
   </div >
 }
 
-export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.dragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.audioDragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])

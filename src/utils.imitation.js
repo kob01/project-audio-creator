@@ -19,13 +19,13 @@ ImitationINS.state = {
 
   message: null,
 
-  canvasAnimationUse: true,
-
-  canvasAnimation: 0,
-
   navigationDrawerExpand: false,
 
-  dragTarget: null,
+  globalSetting: { volume: 1, scale: 1 },
+
+  canvasAnimationUse: true,
+
+  canvasAnimation: [],
 
   audio: audio,
 
@@ -33,7 +33,7 @@ ImitationINS.state = {
 
   audioSetting: [],
 
-  globalSetting: { volume: 1, scale: 1 },
+  audioDragTarget: null,
 
   console: [],
   // console: example,

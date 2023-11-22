@@ -50,29 +50,33 @@ function App() {
     }
   }, [Imitation.state.canvasAnimationUse])
 
-  React.useEffect(() => {
-    fetch(`https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F0f5476c4-c3f9-4dfc-97ff-81df8bcc4572%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1701858544&t=592cf9be04636c20ef54e1bf18707088`)
-      .then(res => res.blob())
-      .then(blob => {
-        const reader = new FileReader()
-        reader.onload = (event) => ImageRef.current.src = event.target.result
-        reader.readAsDataURL(blob)
-      })
-  }, [])
+  // React.useEffect(() => {
+  //   fetch(`https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F0f5476c4-c3f9-4dfc-97ff-81df8bcc4572%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1701858544&t=592cf9be04636c20ef54e1bf18707088`)
+  //     .then(res => res.blob())
+  //     .then(blob => {
+  //       const reader = new FileReader()
+  //       reader.onload = (event) => ImageRef.current.src = event.target.result
+  //       reader.readAsDataURL(blob)
+  //     })
+  // }, [])
 
   React.useEffect(() => {
-    if (Imitation.state.canvasAnimation === 0 || Imitation.state.canvasAnimationUse === false) return
+    if (Imitation.state.canvasAnimation.length === 0 || Imitation.state.canvasAnimationUse === false) return
 
-    const min = Math.min(canvasRef.current.width, canvasRef.current.height)
+    Imitation.state.canvasAnimation.forEach(i => {
+      const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 
-    const radius = Math.random() * min * 0.2 + min * 0.1
-    const radiusMax = radius
-    const x = Math.random() * (canvasRef.current.width - radius) + radius / 2
-    const y = Math.random() * (canvasRef.current.height - radius) + radius / 2
+      const radius = Math.random() * min * 0.2 + min * 0.1
+      const radiusMax = radius
+      const x = Math.random() * (canvasRef.current.width - radius) + radius / 2
+      const y = Math.random() * (canvasRef.current.height - radius) + radius / 2
 
-    const view = { x, y, radius, radiusMax }
+      const view = { x, y, radius, radiusMax }
 
-    viewRef.current.push(view)
+      viewRef.current.push(view)
+    })
+
+    Imitation.setState(pre => { pre.canvasAnimation = []; return pre })
   }, [Imitation.state.canvasAnimation])
 
   return <canvas style={{ position: 'absolute', zIndex: -1, top: 0, left: 0, width: '100%', height: '100%' }} width={canvasRef.current ? canvasRef.current.offsetWidth : 0} height={canvasRef.current ? canvasRef.current.offsetHeight : 0} ref={el => canvasRef.current = el}></canvas>
