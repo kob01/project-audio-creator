@@ -9,6 +9,8 @@ function App() {
 
   const viewRef = React.useRef([])
 
+  const view2Ref = React.useRef(0)
+
   const loop = () => {
     if (Imitation.state.canvasAnimationUse === false) return
 
@@ -17,28 +19,44 @@ function App() {
 
       context.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
 
-      viewRef.current.forEach(i => {
-        const x = i.x
-        const y = i.y
-        const radius = i.radius
+      // viewRef.current.forEach(i => {
+      //   const x = i.x
+      //   const y = i.y
+      //   const radius = i.radius
+
+      //   context.save()
+
+      //   context.beginPath()
+      //   context.arc(x, y, radius, 0, Math.PI * 2)
+      //   context.clip()
+
+      //   // context.drawImage(ImageRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height)
+
+      //   context.fillStyle = Imitation.state.theme.palette.primary.main
+      //   context.fill()
+
+      //   context.restore()
+
+      //   i.radius = i.radius - i.radiusMax / 120
+
+      //   if (i.radius === 0 || i.radius < 0.1) viewRef.current = viewRef.current.filter(i_ => i_ !== i)
+      // })
+
 
         context.save()
 
         context.beginPath()
-        context.arc(x, y, radius, 0, Math.PI * 2)
+        context.arc(canvasRef.current.width / 2, canvasRef.current.height / 2, view2Ref.current, 0, Math.PI * 2)
         context.clip()
-
-        // context.drawImage(ImageRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height)
 
         context.fillStyle = Imitation.state.theme.palette.primary.main
         context.fill()
 
         context.restore()
 
-        i.radius = i.radius - i.radiusMax / 120
+        view2Ref.current = view2Ref.current - Math.max(view2Ref.current / 60, 1)
 
-        if (i.radius === 0 || i.radius < 0.1) viewRef.current = viewRef.current.filter(i_ => i_ !== i)
-      })
+        if (view2Ref.current < 1) view2Ref.current = 0
 
       loop()
     })
@@ -60,20 +78,32 @@ function App() {
   //     })
   // }, [])
 
+  // React.useEffect(() => {
+  //   if (Imitation.state.canvasAnimation.length === 0 || Imitation.state.canvasAnimationUse === false) return
+
+  //   Imitation.state.canvasAnimation.forEach(i => {
+  //     const min = Math.min(canvasRef.current.width, canvasRef.current.height)
+
+  //     const radius = Math.random() * min * 0.2 + min * 0.1
+  //     const radiusMax = radius
+  //     const x = Math.random() * (canvasRef.current.width - radius) + radius / 2
+  //     const y = Math.random() * (canvasRef.current.height - radius) + radius / 2
+
+  //     const view = { x, y, radius, radiusMax }
+
+  //     viewRef.current.push(view)
+  //   })
+
+  //   Imitation.setState(pre => { pre.canvasAnimation = []; return pre })
+  // }, [Imitation.state.canvasAnimation])
+
   React.useEffect(() => {
     if (Imitation.state.canvasAnimation.length === 0 || Imitation.state.canvasAnimationUse === false) return
 
     Imitation.state.canvasAnimation.forEach(i => {
       const min = Math.min(canvasRef.current.width, canvasRef.current.height)
 
-      const radius = Math.random() * min * 0.2 + min * 0.1
-      const radiusMax = radius
-      const x = Math.random() * (canvasRef.current.width - radius) + radius / 2
-      const y = Math.random() * (canvasRef.current.height - radius) + radius / 2
-
-      const view = { x, y, radius, radiusMax }
-
-      viewRef.current.push(view)
+      view2Ref.current = view2Ref.current + min * 0.1
     })
 
     Imitation.setState(pre => { pre.canvasAnimation = []; return pre })

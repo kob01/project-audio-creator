@@ -2,11 +2,10 @@ import React from 'react'
 
 import Imitation from './utils.imitation'
 
-import { loadAudioBuffer, playAudioContext } from './utils.audio'
-import { requestIdleCallbackProcess } from './utils.common'
+import { playAudioContext } from './utils.audio'
 
 function ControlSourceComponent(props) {
-  const { id, use, codeInclued, codeMain, codeExclude } = props.source
+  const { id, duration, use, codeInclued, codeMain, codeExclude } = props.source
 
   const playingTimeoutRef = React.useRef()
 
@@ -27,12 +26,10 @@ function ControlSourceComponent(props) {
 
     playingTimeoutRef.current = setTimeout(() => setPlaying(false), 500)
 
-    Imitation.setState(pre => { pre.canvasAnimation = [{ id: id }]; return pre })
+    Imitation.setState(pre => { pre.canvasAnimation = [{ id: id, duration: duration }]; return pre })
   }
 
   const keydown = (e) => {
-    if (props.setting == true) return
-
     if (use === false) return
 
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
@@ -47,8 +44,6 @@ function ControlSourceComponent(props) {
   }
 
   const keyup = (e) => {
-    if (props.setting == true) return
-
     if (use === false) return
 
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
@@ -59,8 +54,6 @@ function ControlSourceComponent(props) {
   }
 
   const onMouseDown = (e) => {
-    if (props.setting == true) return
-
     if (e.button !== 0) return
 
     if (use === true) play()
@@ -71,8 +64,6 @@ function ControlSourceComponent(props) {
   }
 
   const onMouseMove = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     if (mouseDownRef.current === true && Imitation.state.audioDragTarget === null) Imitation.assignState({ audioDragTarget: props.source })
@@ -81,8 +72,6 @@ function ControlSourceComponent(props) {
   }
 
   const onMouseUp = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ audioDragTarget: null })
@@ -93,8 +82,6 @@ function ControlSourceComponent(props) {
   }
 
   const onTouchStart = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     if (use === true) play()
@@ -105,8 +92,6 @@ function ControlSourceComponent(props) {
   }
 
   const onTouchMove = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     if (mouseDownRef.current === true && Imitation.state.audioDragTarget === null) Imitation.assignState({ audioDragTarget: props.source })
@@ -115,8 +100,6 @@ function ControlSourceComponent(props) {
   }
 
   const onTouchEnd = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     if (Imitation.state.consoleExpand === false || Imitation.state.consoleCurrent === null) Imitation.assignState({ audioDragTarget: null })
@@ -127,8 +110,6 @@ function ControlSourceComponent(props) {
   }
 
   const onContextMenu = (e) => {
-    if (props.setting == true) return
-
     if (Imitation.state.dialogGlobalSetting !== null || Imitation.state.dialogExample !== null || Imitation.state.dialogLocalStorage !== null || Imitation.state.dialogConsoleTimeAlignment !== null || Imitation.state.dialogPlaygroundAudio !== null || Imitation.state.dialogConsoleAudio !== null || Imitation.state.dialogConsoleGroup !== null) return
 
     e.preventDefault()
@@ -162,7 +143,7 @@ function ControlSourceComponent(props) {
         window.removeEventListener('touchend', onTouchEnd)
       }
     }
-  }, [props.setting, props.source])
+  }, [props.source])
 
   React.useEffect(() => {
     window.addEventListener('keydown', keydown)
@@ -172,7 +153,7 @@ function ControlSourceComponent(props) {
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
     }
-  }, [props.setting, props.source, codePress])
+  }, [props.source, codePress])
 
   return props.children(event, playing)
 }

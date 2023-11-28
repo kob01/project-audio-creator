@@ -1,11 +1,6 @@
 import React from 'react'
 
-import Grid from '@mui/material/Grid'
-import Slider from '@mui/material/Slider'
 import Button from '@mui/material/Button'
-
-import SettingsIcon from '@mui/icons-material/Settings'
-import SaveIcon from '@mui/icons-material/Save'
 
 import Animation from './View.Component.Animation'
 import { ControlSource } from './View.Component.Playground'
@@ -13,7 +8,7 @@ import { ControlSource } from './View.Component.Playground'
 import Imitation from './utils.imitation'
 
 import { requestIdleCallbackProcess } from './utils.common'
-import { loadAudioBuffer, playAudioContext } from './utils.audio'
+import { loadAudioBuffer } from './utils.audio'
 
 function App() {
   const audioRef = React.useRef(JSON.parse(JSON.stringify(Imitation.state.audio.filter(i => i._id === 'ClassicalChoirMale'))))
@@ -22,7 +17,6 @@ function App() {
   const timeoutRef = React.useRef()
 
   const [consoleFullScreen, setConsoleFullScreen] = React.useState(Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true)
-  const [setting, setSetting] = React.useState(false)
   const [scale, setScale] = React.useState(1)
   const [audioSource, setAudioSource] = React.useState(audioRef.current)
 
@@ -56,41 +50,68 @@ function App() {
   }, [consoleFullScreen, containerRef.current, contentRef.current])
 
   React.useEffect(async () => {
-    const audio = audioRef.current
+    if (audioSource === audioRef.current) {
+      const audio = audioRef.current
 
-    Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
+      Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    const process = {
-      index: 0,
+      const process = {
+        index: 0,
 
-      done: false,
+        done: false,
 
-      next: () => {
-        const current = audio[process.index]
+        next: () => {
+          const current = audio[process.index]
 
-        if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
-        if (current === undefined) process.done = true
+          if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
+          if (current === undefined) process.done = true
 
-        process.index = process.index + 1
+          process.index = process.index + 1
+        }
       }
+
+      await requestIdleCallbackProcess(process)
+
+      const audioBuffer = await loadAudioBuffer(audio)
+
+      // console.log(audioBuffer.map(i => `{ name: "${i.name}", duration: ${i.audioBuffer.duration} },`).join('\n'))
+
+      setAudioSource(audioBuffer)
+
+      Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
     }
 
-    await requestIdleCallbackProcess(process)
+    if (audioSource !== audioRef.current) {
+      const audio = audioSource
 
-    const audioBuffer = await loadAudioBuffer(audio)
+      Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
 
-    // console.log(audioBuffer.map(i => `{ name: "${i.name}", duration: ${i.audioBuffer.duration} },`).join('\n'))
+      const process = {
+        index: 0,
 
-    setAudioSource(audioBuffer)
+        done: false,
 
-    audioRef.current = audioBuffer
+        next: () => {
+          const current = audio[process.index]
 
-    Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
+          if (current !== undefined) Object.assign(current, Imitation.state.audioSetting.find(i_ => current.id === i_.id))
+          if (current === undefined) process.done = true
+
+          process.index = process.index + 1
+        }
+      }
+
+      await requestIdleCallbackProcess(process)
+
+      setAudioSource(audio)
+
+      Imitation.setState(pre => { pre.loading = pre.loading - 1; return pre })
+    }
   }, [Imitation.state.audioSetting])
 
   return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: consoleFullScreen ? 0 : 1, transition: '0.5s all' }} ref={el => containerRef.current = el}>
 
-    <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: setting ? 0.2 : 1 }]} style={{ position: 'absolute', zIndex: setting ? 1 : 3, height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', opacity: setting ? 1 : 0.2, transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
+    <div style={{ position: 'absolute', zIndex: 1, height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {
         ['A', 'M', 'O', 'U'].map((i, index) => {
           return <div key={index} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -98,7 +119,7 @@ function App() {
               audioSource
                 .filter(i_ => i_.id.split('.')[1].includes(i))
                 .map((i, index) => {
-                  return <ControlSource key={index} source={i} setting={setting}>
+                  return <ControlSource key={index} source={i}>
                     {
                       (event, playing) => {
 
@@ -131,25 +152,9 @@ function App() {
           </div>
         })
       }
-    </Animation>
+    </div>
 
-    <Grid container spacing={1} style={{ position: 'absolute', zIndex: setting ? 3 : 1, width: 'calc(100% - 32px)', maxWidth: 600, height: 'fit-content', fontSize: 14, flexShrink: 0, opacity: setting ? 1 : 0, transition: '0.5s all' }}>
-      <Grid item xs={12}>
-        Scale<span style={{ outline: 'none', marginLeft: 8 }}>{scale}</span>
-      </Grid>
-      <Grid item xs={12}>
-        <Slider value={scale} onChange={(e, v) => { setScale(v) }} min={0} max={2} step={0.1} />
-      </Grid>
-      <Grid item xs={12} style={{ display: 'flex', justifyContent: 'center' }}>
-        <Button style={{ margin: '0 8px' }} variant='contained' onClick={() => setSetting(false)}><SaveIcon style={{ marginRight: 4 }} />Save</Button>
-      </Grid>
-    </Grid>
-
-    <div style={{ position: 'absolute', zIndex: 2, width: '100%', height: '100%', top: 0, left: 0 }} onClick={() => setSetting(false)}></div>
-
-    <Button variant='text' style={{ position: 'absolute', zIndex: 4, bottom: 16 }} onClick={() => setSetting(pre => !pre)}><SettingsIcon /></Button>
-
-  </Animation >
+  </Animation>
 }
 
 export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.globalSetting)])

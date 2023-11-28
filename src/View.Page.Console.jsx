@@ -665,7 +665,7 @@ function App() {
               </div>
 
               {
-                minTime !== undefined && maxTime !== undefined ?
+                sourceRender !== undefined && sourceRender.length > 0 && minTime !== undefined && maxTime !== undefined ?
                   <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
                     {
                       new Array(11).fill().map((i, index) => {

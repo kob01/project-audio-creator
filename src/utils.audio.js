@@ -99,6 +99,8 @@ const playAudioContext = (source) => {
 
   gain.gain.value = source.volume * Imitation.state.globalSetting.volume
 
+  // gain.gain.linearRampToValueAtTime()
+
   bufferSource.buffer = source.audioBuffer
   bufferSource.loop = false
   bufferSource.playbackRate.value = source.rate
