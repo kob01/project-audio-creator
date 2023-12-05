@@ -2,7 +2,7 @@ import audio from '../src-audio/index'
 
 import Imitation from 'imitation-imm/src/index'
 
-// import example from '../src-example/偏爱.console.json'
+import example from '../src-example/偏爱.console.json'
 
 const ImitationINS = new Imitation()
 
@@ -36,15 +36,17 @@ ImitationINS.state = {
   audioDragTarget: null,
 
   console: [],
-  // console: example,
+  console: example,
 
-  consoleExpand: false,
+  consoleExpand: true,
+
+  consoleFullScreen: false,
 
   consoleCurrent: null,
 
   consoleContainerRef: null,
 
-  consoleFullScreen: false,
+  consoleRecord: [],
 
   dialogGlobalSetting: null,
 

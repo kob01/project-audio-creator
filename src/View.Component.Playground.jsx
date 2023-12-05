@@ -26,7 +26,9 @@ function ControlSourceComponent(props) {
 
     playingTimeoutRef.current = setTimeout(() => setPlaying(false), 500)
 
-    Imitation.setState(pre => { pre.canvasAnimation = [{ id: id, duration: duration }]; return pre })
+    const pushThing = ['id', 'use', 'volume', 'rate', 'when', 'offset', 'duration'].reduce((t, i) => ({ ...t, [i]: props.source[i] }), {})
+
+    Imitation.setState(pre => { pre.canvasAnimation = [pushThing]; pre.consoleRecord = [pushThing]; return pre })
   }
 
   const keydown = (e) => {

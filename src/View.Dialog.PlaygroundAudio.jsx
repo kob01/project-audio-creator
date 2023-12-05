@@ -95,7 +95,7 @@ function App() {
   }
 
   const play = () => {
-    playAudioContext(source)
+    playAudioContext({ ...source, when: 0 })
   }
 
   const reset = () => {

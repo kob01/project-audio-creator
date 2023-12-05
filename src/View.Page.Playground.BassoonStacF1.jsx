@@ -16,17 +16,11 @@ function App() {
   const contentRef = React.useRef()
   const timeoutRef = React.useRef()
 
-  const [consoleFullScreen, setConsoleFullScreen] = React.useState(Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true)
   const [scale, setScale] = React.useState(1)
   const [audioSource, setAudioSource] = React.useState(audioRef.current)
-
+  
   React.useEffect(() => {
-    const r = Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true
-    setConsoleFullScreen(r)
-  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand])
-
-  React.useEffect(() => {
-    if (consoleFullScreen) return null
+    if (Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true) return null
 
     const observer = new ResizeObserver(() => {
       const event = () => {
@@ -47,7 +41,7 @@ function App() {
     observer.observe(contentRef.current)
 
     return () => { clearTimeout(timeoutRef.current); observer.disconnect() }
-  }, [consoleFullScreen, containerRef.current, contentRef.current])
+  }, [Imitation.state.consoleFullScreen, Imitation.state.consoleExpand, containerRef.current, contentRef.current])
 
   React.useEffect(async () => {
     if (audioSource === audioRef.current) {
@@ -109,7 +103,7 @@ function App() {
     }
   }, [Imitation.state.audioSetting])
 
-  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: consoleFullScreen ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: consoleFullScreen ? 0 : 1, transition: '0.5s all' }} ref={el => containerRef.current = el}>
+  return <Animation tag='div' restore={true} animation={[{ opacity: 0 }, { opacity: Imitation.state.consoleFullScreen === true && Imitation.state.consoleExpand === true ? 0 : 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.5s all' }} ref={el => containerRef.current = el}>
 
     <div style={{ position: 'absolute', zIndex: 1, height: 'fit-content', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', transition: '0.5s all', transform: `scale(${scale * Imitation.state.globalSetting.scale})` }} ref={el => contentRef.current = el}>
       {

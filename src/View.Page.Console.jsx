@@ -14,6 +14,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import AlignVerticalCenterIcon from '@mui/icons-material/AlignVerticalCenter'
 import AlignHorizontalCenterIcon from '@mui/icons-material/AlignHorizontalCenter'
+import EmergencyRecordingIcon from '@mui/icons-material/EmergencyRecording'
 
 import Imitation from './utils.imitation'
 import { hash, getResizePageRate } from './utils.common'
@@ -223,17 +224,19 @@ function ControlSource(props) {
 
 function App() {
   const audioContextRef = React.useRef()
+  const currentTimeRef = React.useRef()
   const currentTimeOffsetRef = React.useRef()
   const currentTimeIdleRef = React.useRef()
 
-  const [playing, setPlaying] = React.useState()
-  const [buffer, setBuffer] = React.useState()
-  const [source, setSource] = React.useState()
-  const [sourceRender, setSourceRender] = React.useState()
-  const [height, setHeight] = React.useState()
-  const [minTime, setMinTime] = React.useState()
-  const [maxTime, setMaxTime] = React.useState()
-  const [currentTime, setCurrentTime] = React.useState()
+  const [recording, setRecording] = React.useState(false)
+  const [playing, setPlaying] = React.useState(false)
+  const [buffer, setBuffer] = React.useState([])
+  const [source, setSource] = React.useState([])
+  const [sourceRender, setSourceRender] = React.useState([])
+  const [height, setHeight] = React.useState(0)
+  const [minTime, setMinTime] = React.useState(0)
+  const [maxTime, setMaxTime] = React.useState(0)
+  const [currentTime, setCurrentTime] = React.useState(0)
 
   const load = async () => {
     Imitation.setState(pre => { pre.loading = pre.loading + 1; return pre })
@@ -250,13 +253,9 @@ function App() {
   }
 
   const play = () => {
-    if (audioContextRef.current !== undefined) {
-      audioContextRef.current.audioContext.close()
+    if (audioContextRef.current !== undefined) audioContextRef.current = audioContextRef.current.audioContext.close().undefined
 
-      audioContextRef.current = undefined
-    }
-
-    const currentTime_ = currentTime === (maxTime - minTime) ? 0 : currentTime
+    const currentTime_ = currentTime === maxTime || currentTime > maxTime ? minTime : currentTime
 
     const context = parseAudioContextMultiple(buffer)
 
@@ -273,7 +272,7 @@ function App() {
       var offset = i.source.offset
       var duration = i.source.duration
 
-      var when = when - currentTime_ - minTime
+      var when = when - currentTime_
 
       if (when < 0) {
         offset = offset - when
@@ -287,15 +286,12 @@ function App() {
         currentLength = currentLength + 1
 
         if (currentLength === maxLength) {
-          setCurrentTime(maxTime - minTime)
+          setCurrentTime(maxTime)
+          currentTimeRef.current = maxTime
 
-          if (audioContextRef.current !== undefined) {
-            audioContextRef.current.audioContext.close()
+          if (audioContextRef.current !== undefined) audioContextRef.current = audioContextRef.current.audioContext.close().undefined
 
-            audioContextRef.current = undefined
-          }
-
-          setPlaying()
+          setPlaying(false)
         }
       }
 
@@ -307,40 +303,50 @@ function App() {
 
     setPlaying(true)
 
-    if (currentTime_ === 0) setCurrentTime(0)
+    setCurrentTime(currentTime_)
+    currentTimeRef.current = currentTime_
+  }
+
+  const record = () => {
+    setRecording(pre => !pre)
   }
 
   const pause = () => {
-    if (audioContextRef.current !== undefined) {
-      audioContextRef.current.audioContext.close()
+    if (audioContextRef.current !== undefined) audioContextRef.current = audioContextRef.current.audioContext.close().undefined
 
-      audioContextRef.current = undefined
-    }
-
-    setPlaying()
+    setPlaying(false)
   }
 
-  const clean = () => {
-    if (audioContextRef.current !== undefined) {
-      audioContextRef.current.audioContext.close()
+  const stop = () => {
+    if (audioContextRef.current !== undefined) audioContextRef.current = audioContextRef.current.audioContext.close().undefined
 
-      audioContextRef.current = undefined
-    }
+    setPlaying(false)
 
-    setPlaying()
-    setBuffer()
+    setBuffer([])
   }
 
   const add = () => {
     Imitation.setState(pre => { pre.console.push({ hash: hash(6), name: hash(6), group: [] }); return pre })
+
+    stop()
   }
 
   const remove = () => {
     Imitation.setState(pre => { pre.console = pre.console.filter(i => i.hash !== pre.consoleCurrent.hash); pre.consoleCurrent = null; return pre })
+
+    stop()
+  }
+
+  const choose = (i) => {
+    Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent !== null && pre.consoleCurrent.hash === i.hash ? null : i; return pre })
+
+    stop()
   }
 
   const edit = () => {
     Imitation.setState(pre => { pre.dialogConsoleGroup = Imitation.state.consoleCurrent; return pre })
+
+    stop()
   }
 
   const copy = () => {
@@ -351,6 +357,8 @@ function App() {
     current_.group.forEach(i => i.hash = hash())
 
     Imitation.setState(pre => { pre.console.push(current_); return pre })
+
+    stop()
   }
 
   const up = () => {
@@ -399,6 +407,8 @@ function App() {
     }
 
     Imitation.setState(pre => { pre.dialogConsoleTimeAlignment = { onChange: onChange }; return pre })
+
+    stop()
   }
 
   const timeSort = () => {
@@ -407,6 +417,8 @@ function App() {
     })
 
     Imitation.dispatch()
+
+    stop()
   }
 
   const moveSource = (changeX, changeY, source) => {
@@ -419,6 +431,8 @@ function App() {
     current.when = Math.max(current.when + minChangeX, 0)
 
     Imitation.dispatch()
+
+    stop()
   }
 
   const moveGroup = (changeX, changeY, group) => {
@@ -435,20 +449,26 @@ function App() {
     })
 
     Imitation.dispatch()
+
+    stop()
   }
 
   const moveTime = (changeX, changeY) => {
     var time = currentTime + changeX * (maxTime - minTime) * 0.001
 
-    if (time < 0) time = 0
-    if (time > (maxTime - minTime)) time = maxTime - minTime
+    if (time < minTime) time = minTime
+    if (time > maxTime) time = maxTime
 
     setCurrentTime(time)
-    setPlaying()
+    currentTimeRef.current = time
+
+    stop()
   }
 
   const expand = () => {
     Imitation.setState(pre => { pre.consoleExpand = !pre.consoleExpand; return pre })
+
+    stop()
   }
 
   const fullscreen = () => {
@@ -456,8 +476,58 @@ function App() {
   }
 
   React.useEffect(() => {
+    if (playing === false) return
+
+    if (window.requestIdleCallback) {
+      const loop = () => {
+        currentTimeIdleRef.current = requestIdleCallback(() => {
+          if (audioContextRef.current) {
+            setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
+            currentTimeRef.current = audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current
+          }
+          loop()
+        })
+      }
+
+      loop()
+
+      return () => {
+        cancelIdleCallback(currentTimeIdleRef.current)
+      }
+    }
+
+    if (!window.requestIdleCallback && window.requestAnimationFrame) {
+      const loop = () => {
+        currentTimeIdleRef.current = requestAnimationFrame(() => {
+          if (audioContextRef.current) {
+            setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
+            currentTimeRef.current = audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current
+          }
+          loop()
+        })
+      }
+
+      loop()
+
+      return () => {
+        cancelAnimationFrame(currentTimeIdleRef.current)
+      }
+    }
+  }, [playing])
+
+  React.useEffect(() => {
+    if (Imitation.state.consoleRecord.length === 0 || recording === false || Imitation.state.consoleCurrent === null) return
+
+    const sources = Imitation.state.consoleRecord.map(i => ({ hash: hash(), ...i, when: currentTimeRef.current }))
+
+    Imitation.state.consoleCurrent.group.push(...sources)
+
+    Imitation.setState(pre => { pre.consoleRecord = []; return pre })
+  }, [recording, Imitation.state.consoleRecord, JSON.stringify(Imitation.state.consoleCurrent)])
+
+  React.useEffect(() => {
     const resize = () => {
-      const r = Imitation.state.consoleFullScreen ? window.innerHeight / getResizePageRate() - 136 : 300
+      const r = Imitation.state.consoleFullScreen ? window.innerHeight / getResizePageRate() - 136 : 360
 
       setHeight(r)
     }
@@ -472,61 +542,25 @@ function App() {
   }, [Imitation.state.consoleFullScreen])
 
   React.useEffect(() => {
-    if (playing === undefined) return
-
-    if (window.requestIdleCallback) {
-      const loop = () => {
-        currentTimeIdleRef.current = requestIdleCallback(() => {
-          if (audioContextRef.current) setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
-          loop()
-        })
-      }
-
-      loop()
-
-      return () => {
-        cancelIdleCallback(currentTimeIdleRef.current)
-      }
-    }
-
-    if (!window.requestIdleCallback) {
-      const loop = () => {
-        currentTimeIdleRef.current = requestAnimationFrame(() => {
-          if (audioContextRef.current) setCurrentTime(audioContextRef.current.audioContext.currentTime + currentTimeOffsetRef.current)
-          loop()
-        })
-      }
-
-      loop()
-
-      return () => {
-        cancelAnimationFrame(currentTimeIdleRef.current)
-      }
-    }
-  }, [playing])
-
-  React.useEffect(() => {
-    if (buffer !== undefined) setCurrentTime(0)
-    if (buffer === undefined) setCurrentTime()
-  }, [buffer])
-
-  React.useEffect(() => {
-    if (Imitation.state.consoleExpand === true) {
-      clean()
-    }
-  }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent), Imitation.state.consoleExpand])
-
-  React.useEffect(() => {
     var source = []
 
     if (Imitation.state.consoleCurrent === null) Imitation.state.console.forEach(i => source.push(...i.group))
     if (Imitation.state.consoleCurrent !== null) Imitation.state.console.forEach(i => i.hash === Imitation.state.consoleCurrent.hash ? source.push(...i.group) : null)
 
-    const r = source.length > 0 ? Math.max(...source.map((i) => i.when + i.duration / i.rate)) : 0
-    const r_ = source.length > 0 ? Math.min(...source.map((i) => i.when)) : 0
+    const max = source.length > 0 ? Math.max(...source.map((i) => i.when + i.duration / i.rate)) : 0
+    const min = source.length > 0 ? Math.min(...source.map((i) => i.when)) : 0
 
-    setMaxTime(r)
-    setMinTime(r_)
+    var current = currentTime
+    if (current < min) current = min
+    if (current > max) current = max
+
+    setMaxTime(max)
+    setMinTime(min)
+
+    setCurrentTime(current)
+
+    currentTimeRef.current = current
+
   }, [JSON.stringify(Imitation.state.console), JSON.stringify(Imitation.state.consoleCurrent)])
 
   React.useEffect(() => {
@@ -578,72 +612,78 @@ function App() {
 
         <div style={{ width: 'fit-content', height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
           {
-            buffer === undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
+            buffer.length === 0 ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => load()}><FolderZipIcon /></Button> : null
           }
           {
-            buffer !== undefined && playing !== undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => pause()}><PauseIcon /></Button> : null
+            buffer.length > 0 && playing === true ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => pause()}><PauseIcon /></Button> : null
           }
           {
-            buffer !== undefined && playing === undefined ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => play()}><PlayArrowIcon /></Button> : null
+            buffer.length > 0 && playing === false ? <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => play()}><PlayArrowIcon /></Button> : null
           }
+          <Button style={{ marginTop: 4 }} fullWidth variant='contained' color={recording ? 'error' : 'primary'} onClick={() => record()}><EmergencyRecordingIcon /></Button>
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => add()}><PlaylistAddIcon /></Button>
-          {
-            Imitation.state.consoleCurrent ?
-              <>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => edit()}><EditIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => copy()}><CopyAllIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => up()}><KeyboardArrowUpIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => down()}><KeyboardArrowDownIcon /></Button>
-              </>
-              : null
-          }
-          {
-            Imitation.state.console.length > 0 ?
-              <>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeAlignment()}><AlignVerticalCenterIcon /></Button>
-                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeSort()}><AlignHorizontalCenterIcon /></Button>
-              </>
-              : null
-          }
           <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => fullscreen()}><FullscreenIcon /></Button>
         </div>
 
-        <div style={{ width: 16, height: '100%' }} />
+        {
+          Imitation.state.console.length > 0 || Imitation.state.consoleCurrent !== null ?
+            <>
+              <div style={{ width: 16, height: '100%' }} />
+
+              <div style={{ width: 'fit-content', height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
+
+                <Button style={{ marginTop: 0 }} fullWidth variant='contained' onClick={() => timeAlignment()}><AlignVerticalCenterIcon /></Button>
+                <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => timeSort()}><AlignHorizontalCenterIcon /></Button>
+
+                {
+                  Imitation.state.consoleCurrent !== null ?
+                    <>
+                      <Button style={{ marginTop: 4 }} fullWidth variant='contained' color='error' onClick={() => remove()}><DeleteIcon /></Button>
+                      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => edit()}><EditIcon /></Button>
+                      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => copy()}><CopyAllIcon /></Button>
+                      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => up()}><KeyboardArrowUpIcon /></Button>
+                      <Button style={{ marginTop: 4 }} fullWidth variant='contained' onClick={() => down()}><KeyboardArrowDownIcon /></Button>
+                    </>
+                    : null
+                }
+              </div>
+            </>
+            : null
+        }
 
         {
           Imitation.state.console.length > 0 ?
-            <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
-              {
-                Imitation.state.console.map((i, index) => {
-                  return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => Imitation.setState(pre => { pre.consoleCurrent = pre.consoleCurrent && pre.consoleCurrent.hash === i.hash ? null : i; return pre })}>{i.name}</Animation>
-                })
-              }
-            </div>
+            <>
+              <div style={{ width: 16, height: '100%' }} />
+
+              <div style={{ height: '100%', flexGrow: 0, flexShrink: 0, display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'auto' }}>
+                {
+                  Imitation.state.console.map((i, index) => {
+                    return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} key={index} style={{ marginTop: index !== 0 ? 4 : 0, textAlign: 'left', transition: '0.5s all' }} fullWidth variant={i === Imitation.state.consoleCurrent ? 'contained' : 'outlined'} onClick={() => choose(i)}>{i.name}</Animation>
+                  })
+                }
+              </div>
+            </>
             : null
         }
 
         <div style={{ width: 0, height: '100%', flexGrow: 1, flexShrink: 0, padding: '0px 16px 8px 32px' }}>
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
 
-            {
-              sourceRender !== undefined ?
-                <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
-                  {
-                    sourceRender.map((i, index) => {
-                      return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudio: i }); if (Imitation.state.consoleCurrent === null) Imitation.assignState({ dialogConsoleGroup: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
-                        {
-                          (event) => {
-                            return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= (i.when - minTime) && currentTime <= (i.when - minTime) + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / (maxTime - minTime) * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${(i.when - minTime) / (maxTime - minTime) * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
-                          }
-                        }
-                      </ControlSource>
-                    })
-                  }
-                  <div style={{ width: '100%', height: 16, position: 'absolute', top: sourceRender.length * 44 }}></div>
-                </div>
-                : null
-            }
+            <div style={{ width: '100%', height: '100%', position: 'absolute', overflow: 'auto' }}>
+              {
+                sourceRender.map((i, index) => {
+                  return <ControlSource key={index} onClick={() => { if (Imitation.state.consoleCurrent !== null) Imitation.assignState({ dialogConsoleAudio: i }); if (Imitation.state.consoleCurrent === null) Imitation.assignState({ dialogConsoleGroup: i }); }} onMove={(changeX, changeY) => { if (Imitation.state.consoleCurrent !== null) moveSource(changeX, changeY, i); if (Imitation.state.consoleCurrent === null) moveGroup(changeX, changeY, i); }}>
+                    {
+                      (event) => {
+                        return <Animation tag={Button} restore={true} animation={[{ opacity: 0 }, { opacity: i.use ? 1 : 0.35 }]} variant={playing && currentTime >= (i.when - minTime) && currentTime <= (i.when - minTime) + i.duration ? 'contained' : 'outlined'} style={{ width: `${(i.duration - i.offset) / i.rate / (maxTime - minTime) * 100}%`, minWidth: 0, height: 36, position: 'absolute', left: `${(i.when - minTime) / (maxTime - minTime) * 100}%`, top: index * 44, paddingLeft: 0, paddingRight: 0, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', transition: '0.5s all' }} {...event}>{i.name}</Animation>
+                      }
+                    }
+                  </ControlSource>
+                })
+              }
+              <div style={{ width: '100%', height: 16, position: 'absolute', top: sourceRender.length * 44 }}></div>
+            </div>
 
             <div style={{ width: '100%', height: 2, position: 'absolute', zIndex: 101, bottom: Imitation.state.console.length > 0 ? 12 : 'calc(50% - 1px)', transition: '0.5s all' }}>
               <div style={{ width: '100%', height: '100%', position: 'absolute', top: 0, bottom: 0, margin: 'auto', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
@@ -664,37 +704,29 @@ function App() {
                 }
               </div>
 
-              {
-                sourceRender !== undefined && sourceRender.length > 0 && minTime !== undefined && maxTime !== undefined ?
-                  <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
-                    {
-                      new Array(11).fill().map((i, index) => {
-                        return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
-                          <div style={{ whiteSpace: 'nowrap' }}>{Number(minTime + index * (maxTime - minTime) / 10).toFixed(2)}</div>
-                        </div>
-                      })
-                    }
-                  </Animation>
-                  : null
-              }
+              <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', alignItems: 'center', fontSize: 12, transition: '0.5s all' }}>
+                {
+                  new Array(11).fill().map((i, index) => {
+                    return <div key={index} style={{ position: 'absolute', left: `${index * 10}%`, top: 8, width: 0, display: 'flex', justifyContent: 'center', color: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}>
+                      <div style={{ whiteSpace: 'nowrap' }}>{Number(minTime + index * (maxTime - minTime) / 10).toFixed(2)}</div>
+                    </div>
+                  })
+                }
+              </Animation>
             </div>
 
-            {
-              buffer !== undefined && currentTime !== undefined ?
-                <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 102, left: `calc(${currentTime / (maxTime - minTime) * 100}% - ${currentTime / (maxTime - minTime) * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
-                  <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
-                    {
-                      (event, active) => {
-                        return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: '0.5s all' }}>
-                          <div style={{ width: '100%', height: '100%', position: 'absolute', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
-                          <div style={{ width: 12, height: 12, position: 'absolute', transform: active ? 'rotate(45deg)' : 'rotate(90deg)', cursor: 'pointer', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }} {...event}></div>
-                        </Animation>
-                      }
-                    }
-                  </ControlTime>
-                </div>
-                : null
-            }
+            <div style={{ width: 2, height: 'calc(100% - 12px)', position: 'absolute', zIndex: 102, left: `calc(${(currentTime - minTime) / (maxTime - minTime) * 100}% - ${(currentTime - minTime) / (maxTime - minTime) * 2}px)`, transition: playing ? 'none' : '0.5s all' }}>
+              <ControlTime onMove={(changeX, changeY) => moveTime(changeX, changeY)}>
+                {
+                  (event, active) => {
+                    return <Animation tag={'div'} restore={true} animation={[{ opacity: 0 }, { opacity: 1 }]} style={{ width: '100%', height: '100%', position: 'absolute', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: '0.5s all' }}>
+                      <div style={{ width: '100%', height: '100%', position: 'absolute', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }}></div>
+                      <div style={{ width: 12, height: 12, position: 'absolute', transform: active ? 'rotate(45deg)' : 'rotate(90deg)', cursor: 'pointer', background: Imitation.state.theme.palette.primary.main, transition: '0.5s all' }} {...event}></div>
+                    </Animation>
+                  }
+                }
+              </ControlTime>
+            </div>
 
           </div>
         </div>
@@ -707,4 +739,4 @@ function App() {
   </div >
 }
 
-export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, JSON.stringify(state.audioDragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])
+export default Imitation.withBindRender(App, state => [state.consoleExpand, state.consoleFullScreen, state.consoleRecord, JSON.stringify(state.audioDragTarget), JSON.stringify(state.console), JSON.stringify(state.consoleCurrent), JSON.stringify(state.audio), JSON.stringify(state.audioSetting), JSON.stringify(state.theme)])
